@@ -1,0 +1,34 @@
+{
+	"name": "cakephp/app",
+	"description": "CakePHP Application skeleton",
+	"type": "library",
+	"keywords": ["application", "cakephp"],
+	"homepage": "https://cakephp.org",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "CakePHP Community",
+			"homepage": "https://github.com/cakephp/cakephp/graphs/contributors"
+		}
+	],
+	"support": {
+		"issues": "https://github.com/cakephp/cakephp/issues",
+		"forum": "https://stackoverflow.com/tags/cakephp",
+		"irc": "irc://irc.freenode.org/cakephp",
+		"source": "https://github.com/cakephp/cakephp"
+	},
+	"require": {
+		"wataridori/chatwork-sdk": "^0.3.0"
+	},
+	"require-dev": {
+	},
+	"suggest": {
+		"cakephp/cakephp-codesniffer": "Easily check code formatting against the CakePHP coding standards."
+	},
+	"bin": [
+		"lib/Cake/Console/cake"
+	],
+	"config": {
+		"vendor-dir": "Vendor/"
+	}
+}
