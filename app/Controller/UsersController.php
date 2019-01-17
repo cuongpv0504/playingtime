@@ -1,4 +1,4 @@
-<?php 
+ <?php 
 App::import('Vendor', 'vendor', array('file' => 'autoload.php'));
 
 use wataridori\ChatworkSDK\ChatworkApi;
@@ -63,14 +63,13 @@ class UsersController extends AppController
 		    'scope' => ['users.all:read', 'rooms.all:read_write']
 		]);
 
-		pr($url);
+		echo "<a href='$url'>Login with chatwork</a>";
 	}
 
 	public function callback()
 	{
 		//session_start();
 		$this->autoRender = false;
-		pr(OAUTH2_CLIENT_ID);
 
 		$provider = new ChatWorkProvider(
 		    OAUTH2_CLIENT_ID,
