@@ -71,16 +71,34 @@ class UsersController extends AppController
 		//session_start();
 		$this->autoRender = false;
 
-		$provider = new ChatWorkProvider(
-		    OAUTH2_CLIENT_ID,
-		    OAUTH2_CLIENT_SECRET,
-		    OAUTH2_REDIRECT_URI
+		$url = 'https://oauth.chatwork.com/token';
+		$data = array(
+			'grant_type' => 'authorization_code',
+			'code' => $_GET['code']
 		);
+		$header = array('Content-Type: application/x-www-form-urlencoded',
+			'Authorization: Basic '.base64_encode(OAUTH2_CLIENT_ID.':'.OAUTH2_CLIENT_SECRET)
+		);
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-		$accessToken = $provider->getAccessToken((string) new AuthorizationCode(), [
-		    'code' => $_GET['code']
-		]);
-		pr($accessToken->getToken());
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		pr($response);
+		// $provider = new ChatWorkProvider(
+		//     OAUTH2_CLIENT_ID,
+		//     OAUTH2_CLIENT_SECRET,
+		//     OAUTH2_REDIRECT_URI
+		// );
+
+		// $accessToken = $provider->getAccessToken((string) new AuthorizationCode(), [
+		//     'code' => $_GET['code']
+		// ]);
+		// pr($accessToken->getToken());
 
 		//$_SESSION['accessToken'] = $accessToken;
 		// $apiKey = API_KEY;
