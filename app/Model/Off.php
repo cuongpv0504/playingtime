@@ -14,6 +14,16 @@ class Off extends AppModel
         'Type' => array(
         	'className' => 'Type',
         	'foreignKey' => 'type'
+        ),
+        'User' => array(
+            'className' => 'User',
+            'foreignKey' => 'user_id'
+        )
+    );
+    public $hasMany = array(
+        'Comment' => array(
+            'className' => 'Comment',
+            'foreignKey' => 'off_id'
         )
     );
 }

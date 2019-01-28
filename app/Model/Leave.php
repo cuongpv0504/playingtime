@@ -10,6 +10,16 @@ class Leave extends AppModel
         'Status' => array(
             'className' => 'Status',
             'foreignKey' => 'status'
+        ),
+        'User' => array(
+            'className' => 'User',
+            'foreignKey' => 'user_id'
+        )
+    );
+    public $hasMany = array(
+        'Comment' => array(
+            'className' => 'Comment',
+            'foreignKey' => 'leave_id'
         )
     );
 }
