@@ -14,6 +14,10 @@ class Comment extends AppModel
         'Leave' => array(
         	'className' => 'Leave',
         	'foreignKey' => 'leave_id'
+        ),
+        'User' => array(
+            'className' => 'User',
+            'foreignKey' => 'user_id'
         )
     );
 }

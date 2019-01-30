@@ -74,15 +74,20 @@ class UsersController extends AppController
 		$url = 'https://oauth.chatwork.com/token';
 		$data = array(
 			'grant_type' => 'authorization_code',
-			'code' => $_GET['code']
+			'code' => $_GET['code'],
+			'redirect_uri' => OAUTH2_REDIRECT_URI
 		);
-		$header = array('Content-Type: application/x-www-form-urlencoded',
+		$header = array(
 			'Authorization: Basic '.base64_encode(OAUTH2_CLIENT_ID.':'.OAUTH2_CLIENT_SECRET)
 		);
+
+		$data = http_build_query($data, '', '&');
+
 		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_POST,TRUE);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
 		$response = curl_exec($ch);
