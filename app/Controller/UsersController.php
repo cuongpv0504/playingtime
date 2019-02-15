@@ -40,14 +40,14 @@ class UsersController extends AppController
 
 		// Get user rooms list
 		$room = new ChatworkRoom($roomId);
-		// $members = $room->getMembers();
-		// foreach ($members as $member) {
-		//     // Print out User Information
-		//     pr($member);
-		//     if ($member->account_id == '1935679') {
-		//     	$room->sendMessageToList(array($member), 'Test gui cho Tam');
-		//     }
-		// }
+		$members = $room->getMembers();
+		foreach ($members as $member) {
+		    // Print out User Information
+		    pr($member);
+		    if ($member->account_id == '1935679') {
+		    	$room->sendMessageToList(array($member), 'Test gui cho Tam');
+		    }
+		}
 	}
 
 	public function oauth()
