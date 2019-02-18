@@ -4,6 +4,11 @@ use wataridori\ChatworkSDK\ChatworkApi;
 use wataridori\ChatworkSDK\ChatworkSDK;
 use wataridori\ChatworkSDK\ChatworkRoom;
 
+use ChatWork\OAuth2\Client\ChatWorkProvider;
+use League\OAuth2\Client\Grant\AuthorizationCode;
+use League\OAuth2\Client\Grant\RefreshToken;
+use GuzzleHttp\Client;
+
 /**
  * 
  */
@@ -13,6 +18,7 @@ class ApiController extends AppController
 
 	//xoa xin nghi khi chua accept 
 	//can kiem tra neu $_POST gui len bi thieu du lieu -> quan trong
+	// can update so day off left o bang User sau khi add request
 
 	const APPROVED = 1;
 	const WAITTING = 2;
@@ -64,9 +70,54 @@ class ApiController extends AppController
 		return 0;
 	}
 
+	//generate login url and send back
 	public function login()
 	{
-		//to do
+		$this->autoRender = false;
+
+		$provider = new ChatWorkProvider(
+		    OAUTH2_CLIENT_ID,
+		    OAUTH2_CLIENT_SECRET,
+		    OAUTH2_REDIRECT_URI
+		);
+
+		$url = $provider->getAuthorizationUrl([
+		    'scope' => ['users.all:read', 'rooms.all:read_write']
+		]);
+
+		return json_encode(array('url' => $url), JSON_PRETTY_PRINT);
+	}
+
+	public function callback()
+	{
+		$this->autoRender = false;
+
+		$url = 'https://oauth.chatwork.com/token';
+		$data = array(
+			'grant_type' => 'authorization_code',
+			'code' => $_GET['code'],
+			'redirect_uri' => OAUTH2_REDIRECT_URI
+		);
+		$header = array(
+			'Authorization: Basic '.base64_encode(OAUTH2_CLIENT_ID.':'.OAUTH2_CLIENT_SECRET)
+		);
+
+		$data = http_build_query($data, '', '&');
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_POST,TRUE);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		pr(json_decode($response));
+		echo "haha";
+		//refresh_token, access_token, token_type
+		header('Location: http://192.168.0.22/chatwork');
 	}
 
 	//return home data
@@ -241,6 +292,145 @@ class ApiController extends AppController
 		return json_encode($data, JSON_PRETTY_PRINT);
 	}
 
+	public function editLeaveDetail()
+	{
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		$email = $_SERVER['HTTP_USER_EMAIL'];
+
+		$data = $this->User->find(
+			'first',
+			array(
+				'conditions' => array(
+					'User.email' => $email
+				)
+		));
+
+		$id = $_POST['id'];
+		$user_id = $data['User']['id'];
+
+		$check = $this->Leave->find('first',array(
+			'conditions' => array(
+				'Leave.id' => $id
+			)
+		));
+
+		if ($check['Leave']['user_id'] != $user_id) {
+			return json_encode(array(
+				'error' => 'You dont have permission'
+			));
+		}
+
+		if ($check['Leave']['status'] != self::WAITTING) {
+			return json_encode(array(
+				'error' => 'Your request has been processed. You can not change request now.'
+			));
+		}
+
+		$save = array(
+			'user_id' => $user_id
+		);
+
+		if (isset($_POST['start'])) {
+			$save['start'] = $_POST['start'];
+		}
+		if (isset($_POST['end'])) {
+			$save['end'] = $_POST['end'];
+		}
+		if (isset($_POST['date'])) {
+			$save['date'] = $_POST['date'];
+		}
+		if (isset($_POST['reason'])) {
+			$save['reason'] = $_POST['reason'];
+		}
+		if (isset($_POST['emotion'])) {
+			$save['emotion'] = $_POST['emotion'];
+		}
+
+		$this->Leave->id = $id;
+		if ($this->Leave->save($save)) {
+			return json_encode('1');
+		} else {
+			return json_encode('0');
+		}
+	}
+
+	public function editOffDetail()
+	{
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		$email = $_SERVER['HTTP_USER_EMAIL'];
+
+		$data = $this->User->find(
+			'first',
+			array(
+				'conditions' => array(
+					'User.email' => $email
+				)
+		));
+
+		//off_id
+		$id = $_POST['id'];
+		$user_id = $data['User']['id'];
+
+		$check = $this->Off->find('first',array(
+			'conditions' => array(
+				'Off.id' => $id
+			)
+		));
+
+		if ($check['Off']['user_id'] != $user_id) {
+			return json_encode(array(
+				'error' => 'You dont have permission'
+			));
+		}
+
+		if ($check['Off']['status'] != self::WAITTING) {
+			return json_encode(array(
+				'error' => 'Your request has been processed. You can not change request now.'
+			));
+		}
+
+		$save = array(
+			'user_id' => $id
+		);
+
+		if (isset($_POST['duration'])) {
+			$save['duration'] = $_POST['duration'];
+		}
+		if (isset($_POST['type'])) {
+			$save['type'] = $_POST['type'];
+		}
+		if (isset($_POST['dates'])) {
+			$save['dates'] = $_POST['dates'];
+		}
+		if (isset($_POST['reason'])) {
+			$save['reason'] = $_POST['reason'];
+		}
+		if (isset($_POST['emotion'])) {
+			$save['emotion'] = $_POST['emotion'];
+		}
+
+		$this->Off->id = $id;
+		if ($this->Off->save($save)) {
+			return json_encode('1');
+		} else {
+			return json_encode('0');
+		}
+	}
+
 	//view Off Detail
 	public function viewOffDetail()
 	{
@@ -285,9 +475,7 @@ class ApiController extends AppController
 		return json_encode($data, JSON_PRETTY_PRINT);
 	}
 
-	//admin and own
-	//nen chia thanh 2 phan off va leave
-	//TODO
+	//admin and own & manager
 	public function viewHistory()
 	{
 		$this->autoRender = false;
@@ -309,7 +497,7 @@ class ApiController extends AppController
 
 		//check owned, if not check role
 		if (empty($checkOwn)) {
-			if ($this->getRole() == 3) {
+			if ($this->getRole() == self::USER) {
 				return json_encode(array(
 					'error' => 'You dont have permission'
 				));
@@ -330,7 +518,7 @@ class ApiController extends AppController
 		$data = array();
 
 		foreach ($offData as $key => $value) {
-			$data[] = array(
+			$data['Off'][] = array(
 				'id' => $value['Off']['id'],
 				'user_id' => $value['Off']['user_id'],
 				'duration' => $value['Off']['duration'],
@@ -343,7 +531,6 @@ class ApiController extends AppController
 				'status' => $value['Status']['status'],
 				'time' => strtotime($value['Off']['create_at']),
 				'user_name' => $value['User']['name'],
-				'info' => 'off',
 				'author' => array(
 					'name' =>  $value['User']['name'],
 					'avatar' => $value['User']['avatar']
@@ -352,7 +539,7 @@ class ApiController extends AppController
 		}
 
 		foreach ($leaveData as $key => $value) {
-			$data[] = array(
+			$data['Leave'][] = array(
 				'id' => $value['Leave']['id'],
 				'user_id' => $value['Leave']['user_id'],
 				'start' => $value['Leave']['start'],
@@ -364,21 +551,12 @@ class ApiController extends AppController
 				'status' => $value['Status']['status'],
 				'time' => strtotime($value['Leave']['create_at']),
 				'user_name' => $value['User']['name'],
-				'info' => 'leave',
 				'author' => array(
 					'name' =>  $value['User']['name'],
 					'avatar' => $value['User']['avatar']
 				)
 			);
 		}
-
-		function build_sorter($key) {
-		    return function ($a, $b) use ($key) {
-		        return $a[$key] - $b[$key];
-		    };
-		}
-
-		usort($data, build_sorter('time'));
 
 		return json_encode($data, JSON_PRETTY_PRINT);	
 	}
@@ -394,7 +572,7 @@ class ApiController extends AppController
 			));
 		}
 
-		if ($this->getRole() != 1) {
+		if ($this->getRole() != self::ADMIN) {
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -422,7 +600,7 @@ class ApiController extends AppController
 		return json_encode('0');
 	}
 
-	//admin
+	//admin & manager
 	public function searchUser()
 	{
 		$this->autoRender = false;
@@ -433,7 +611,7 @@ class ApiController extends AppController
 			));
 		}
 
-		if ($this->getRole() == 3) {
+		if ($this->getRole() == self::USER) {
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -451,8 +629,6 @@ class ApiController extends AppController
 	}
 
 	//add Leave
-	//date format chuan sql
-	//chua test postman
 	public function addLeave()
 	{
 		$this->autoRender = false;
@@ -495,14 +671,13 @@ class ApiController extends AppController
 
 		$this->Leave->create();
 		if ($this->Leave->save($save)) {
-			return json_encode(1);
+			return json_encode('1');
 		} else {
-			return json_encode(0);
+			return json_encode('0');
 		}
 	}
 
 	//add Day off
-	// cung chua test
 	public function addOff()
 	{
 		$this->autoRender = false;
@@ -547,13 +722,14 @@ class ApiController extends AppController
 
 		$this->Off->create();
 		if ($this->Off->save($save)) {
-			return json_encode(1);
+			return json_encode('1');
 		} else {
-			return json_encode(0);
+			return json_encode('0');
 		}
 	}
 
-	public function sendChatWork()
+	// chuyen sang private
+	public function sendChatWork($data)
 	{
 		$this->autoRender = false;
 
@@ -563,7 +739,7 @@ class ApiController extends AppController
 
 		//send message
 
-		//$room->sendMessage("Test, Hello");
+		// $room->sendMessage("Test, Hello");
 
 		$members = $room->getMembers();
 		foreach ($members as $member) {
@@ -574,6 +750,45 @@ class ApiController extends AppController
 	}
 
 	public function addComment()
+	{
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		$email = $_SERVER['HTTP_USER_EMAIL'];
+		$data = $this->User->find(
+			'first',
+			array(
+				'conditions' => array(
+					'User.email' => $email
+				)
+		));
+
+		$id = $data['User']['id'];
+		$comment = $_POST['comment'];
+		$off_id = $_POST['off_id'];
+		$leave_id = $_POST['leave_id'];
+
+		$save = array(
+			'user_id' => $id,
+			'comment' => $comment,
+			'off_id' => $off_id,
+			'leave_id' => $leave_id
+		);
+
+		$this->Comment->create();
+		if ($this->Comment->save($save)) {
+			return json_encode(1);
+		} else {
+			return json_encode(0);
+		}
+	}
+
+	public function editComment()
 	{
 		# code...
 	}

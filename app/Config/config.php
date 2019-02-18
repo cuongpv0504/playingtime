@@ -6,7 +6,7 @@ const ROOM_ID = '134322843';
 
 const OAUTH2_CLIENT_ID = 'eQpjMVmPQK058';
 const OAUTH2_CLIENT_SECRET = 'Dt5t*H0HN?rsatD7k2UbO*+flDwLOFRd';
-const OAUTH2_REDIRECT_URI = HOST.'/chatwork/users/callback';
+const OAUTH2_REDIRECT_URI = HOST.'/chatwork/api/callback';
 
 const JO_ID = "";
 const USUI_ID = "";

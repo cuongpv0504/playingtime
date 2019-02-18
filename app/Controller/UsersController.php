@@ -93,7 +93,7 @@ class UsersController extends AppController
 		$response = curl_exec($ch);
 		curl_close($ch);
 
-		pr($response);
+		pr($response['access_token']);
 		// $provider = new ChatWorkProvider(
 		//     OAUTH2_CLIENT_ID,
 		//     OAUTH2_CLIENT_SECRET,
