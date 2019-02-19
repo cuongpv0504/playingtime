@@ -85,7 +85,8 @@ class ApiController extends AppController
 		    'scope' => ['users.all:read', 'rooms.all:read_write']
 		]);
 
-		return json_encode(array('url' => $url), JSON_PRETTY_PRINT);
+		// return json_encode(array('url' => $url), JSON_PRETTY_PRINT);
+		$this->response->header('Location',$url);
 	}
 
 	public function callback()
@@ -114,10 +115,28 @@ class ApiController extends AppController
 		$response = curl_exec($ch);
 		curl_close($ch);
 
-		pr(json_decode($response));
-		echo "haha";
-		//refresh_token, access_token, token_type
-		header('Location: http://192.168.0.22/chatwork');
+		$access_token = json_decode($response)->access_token;
+
+		//get user info
+		$url = 'https://api.chatwork.com/v2/me';
+		$header = array(
+			'Authorization: Bearer '.$access_token
+		);
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		$user = json_decode($response);
+		// pr($user);
+		$email = $user->login_mail;
+
+		$url = 'yasumi://abc/xyz?';
+		$url = $url.'email='.$email;
+		$this->response->header('Location',$url);
 	}
 
 	//return home data
@@ -789,6 +808,11 @@ class ApiController extends AppController
 	}
 
 	public function editComment()
+	{
+		# code...
+	}
+
+	public function notification()
 	{
 		# code...
 	}
