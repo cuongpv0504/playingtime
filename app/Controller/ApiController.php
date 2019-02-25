@@ -1,8 +1,5 @@
 <?php  
 App::import('Vendor', 'vendor', array('file' => 'autoload.php'));
-use wataridori\ChatworkSDK\ChatworkApi;
-use wataridori\ChatworkSDK\ChatworkSDK;
-use wataridori\ChatworkSDK\ChatworkRoom;
 
 use ChatWork\OAuth2\Client\ChatWorkProvider;
 use League\OAuth2\Client\Grant\AuthorizationCode;
@@ -15,10 +12,10 @@ use GuzzleHttp\Client;
 class ApiController extends AppController
 {
 	public $uses = array('User','Leave','Off','Comment');
+	public $helpers = array('Html');
 
 	//xoa xin nghi khi chua accept 
 	//can kiem tra neu $_POST gui len bi thieu du lieu -> quan trong
-	// can update so day off left o bang User sau khi add request
 
 	const APPROVED = 1;
 	const WAITTING = 2;
@@ -36,7 +33,12 @@ class ApiController extends AppController
 	private function auth()
 	{
 		// $this->autoRender = false;
+		if (empty($_SERVER['HTTP_USER_EMAIL'])) {
+			return false;
+		}
+
 		$email = $_SERVER['HTTP_USER_EMAIL'];
+
 		$check = $this->User->find('first',array(
 			'conditions' => array(
 				'email' => $email
@@ -70,6 +72,79 @@ class ApiController extends AppController
 		return 0;
 	}
 
+	//response code here 
+	//save info when login by chatwork
+	public function saveInfo()
+	{
+		$this->autoRender = false;
+
+		$email = $_POST['email'];
+		$name = $_POST['name'];
+		$avatar = $_POST['avatar'];
+		$access_token = $_POST['access_token'];
+		$refresh_token = $_POST['refresh_token'];
+
+		$check = $this->User->find('first',array(
+			'conditions' => array(
+				'User.email' => $email
+			)
+		));
+
+		if (empty($check)) {
+			$this->response->statusCode(406);
+		 	return json_encode(array(
+		 		'error' => 'You can not access Yasumi PJ'
+		 	));
+		} 
+
+		$id = $check['User']['id'];
+		$save = array(
+			'access_token' => $access_token,
+			'refresh_token' => $refresh_token,
+			'name' => $name,
+			'avatar' => $avatar
+		);
+
+		$this->User->id = $id;
+		if ($this->User->save($save)) {
+			return '1';
+		} else {
+			return '0';
+		}
+	}
+
+	// by refresh token
+	public function getAccessToken($refreshToken = null)
+	{
+		$this->autoRender = false;
+
+		$url = 'https://oauth.chatwork.com/token';
+		$data = array(
+			'grant_type' => 'refresh_token',
+			'refresh_token' => $refreshToken,
+			'scope' => 'users.all:read rooms.all:read_write'
+		);
+
+		$header = array(
+			'Authorization: Basic '.base64_encode(OAUTH2_CLIENT_ID.':'.OAUTH2_CLIENT_SECRET)
+		);
+
+		$data = http_build_query($data, '', '&');
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_POST,TRUE);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		$access_token = json_decode($response)->access_token;
+		return $access_token;
+	}
+
 	//generate login url and send back
 	public function login()
 	{
@@ -85,10 +160,11 @@ class ApiController extends AppController
 		    'scope' => ['users.all:read', 'rooms.all:read_write']
 		]);
 
-		// return json_encode(array('url' => $url), JSON_PRETTY_PRINT);
 		$this->response->header('Location',$url);
 	}
 
+	//tam thoi ko dung
+	//for test
 	public function callback()
 	{
 		$this->autoRender = false;
@@ -114,8 +190,10 @@ class ApiController extends AppController
 
 		$response = curl_exec($ch);
 		curl_close($ch);
+		pr($response);
 
 		$access_token = json_decode($response)->access_token;
+		$refresh_token = json_decode($response)->refresh_token;
 
 		//get user info
 		$url = 'https://api.chatwork.com/v2/me';
@@ -131,12 +209,12 @@ class ApiController extends AppController
 		curl_close($ch);
 
 		$user = json_decode($response);
-		// pr($user);
+		pr($user);
 		$email = $user->login_mail;
 
 		$url = 'yasumi://abc/xyz?';
 		$url = $url.'email='.$email;
-		$this->response->header('Location',$url);
+		// $this->response->header('Location',$url);
 	}
 
 	//return home data
@@ -145,6 +223,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -281,6 +360,13 @@ class ApiController extends AppController
 
 		$leave_id = $_POST['leave_id'];
 
+		if (isset($_POST['read'])) {
+			$this->Leave->id = $leave_id;
+			$this->Leave->save(array(
+				'notice' => '0'
+			));
+		}
+
 		$leaveData = $this->Leave->find(
 			'first',
 			array(
@@ -311,6 +397,7 @@ class ApiController extends AppController
 		return json_encode($data, JSON_PRETTY_PRINT);
 	}
 
+	//edit leave
 	public function editLeaveDetail()
 	{
 		$this->autoRender = false;
@@ -380,6 +467,7 @@ class ApiController extends AppController
 		}
 	}
 
+	//edit off
 	public function editOffDetail()
 	{
 		$this->autoRender = false;
@@ -462,6 +550,13 @@ class ApiController extends AppController
 		}
 
 		$off_id = $_POST['off_id'];
+
+		if (isset($_POST['read'])) {
+			$this->Off->id = $off_id;
+			$this->Off->save(array(
+				'notice' => '0'
+			));
+		}
 
 		$offData = $this->Off->find(
 			'first',
@@ -604,19 +699,111 @@ class ApiController extends AppController
 
 		if ($info == 'off') {
 			$this->Off->id = $id;
-			$save = array('status' => $status);
+			$save = array(
+				'status' => $status,
+				'notice' => '1',
+				'approve_time' => date("Y-m-d H:i:s")
+			);
 			if ($this->Off->save($save)) {
 				return json_encode('1');
 			}
 		} elseif ($info == 'leave') {
 			$this->Leave->id = $id;
-			$save = array('status' => $status);
+			$save = array(
+				'status' => $status,
+				'notice' => '1',
+				'approve_time' => date("Y-m-d H:i:s")
+			);
 			if ($this->Leave->save($save)) {
 				return json_encode('1');
 			}
 		}
 
 		return json_encode('0');
+	}
+
+	public function waitingList()
+	{
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		if ($this->getRole() != self::ADMIN) {
+			return json_encode(array(
+				'error' => 'You dont have permission'
+			));
+		}
+
+		$offData = $this->Off->find('all',array(
+			'conditions' => array(
+				'Off.status' => self::WAITTING
+			)
+		));
+
+		$leaveData = $this->Leave->find('all',array(
+			'conditions' => array(
+				'Leave.status' => self::WAITTING
+			)
+		));
+
+		$data = array();
+
+		foreach ($offData as $key => $value) {
+			$data[] = array(
+				'id' => $value['Off']['id'],
+				'user_id' => $value['Off']['user_id'],
+				'duration' => $value['Off']['duration'],
+				'dates' => $value['Off']['dates'],
+				'create_at' => $value['Off']['create_at'],
+				'reason' => $value['Off']['reason'],
+				'emotion' => $value['Off']['emotion'],
+				'type' => $value['Type']['description'],
+				'day_left' => $value['Off']['day_left'],
+				'status' => $value['Status']['status'],
+				'time' => strtotime($value['Off']['create_at']),
+				'user_name' => $value['User']['name'],
+				'info' => 'off',
+				'author' => array(
+					'name' =>  $value['User']['name'],
+					'avatar' => $value['User']['avatar']
+				)
+			);
+		}
+
+		foreach ($leaveData as $key => $value) {
+			$data[] = array(
+				'id' => $value['Leave']['id'],
+				'user_id' => $value['Leave']['user_id'],
+				'start' => $value['Leave']['start'],
+				'end' => $value['Leave']['end'],
+				'date' => $value['Leave']['date'],
+				'create_at' => $value['Leave']['create_at'],
+				'reason' => $value['Leave']['reason'],
+				'emotion' => $value['Leave']['emotion'],
+				'status' => $value['Status']['status'],
+				'time' => strtotime($value['Leave']['create_at']),
+				'user_name' => $value['User']['name'],
+				'info' => 'leave',
+				'author' => array(
+					'name' =>  $value['User']['name'],
+					'avatar' => $value['User']['avatar']
+				)
+			);
+		}
+
+		function build_sorter($key) {
+		    return function ($a, $b) use ($key) {
+		        return $a[$key] - $b[$key];
+		    };
+		}
+
+		usort($data, build_sorter('time'));
+
+		return json_encode($data, JSON_PRETTY_PRINT);
 	}
 
 	//admin & manager
@@ -641,6 +828,30 @@ class ApiController extends AppController
 		$data = $this->User->find('all',array(
 			'conditions' => array(
 				'User.name LIKE' => '%'.$query.'%'
+			)
+		));
+
+		return json_encode($data, JSON_PRETTY_PRINT);
+	}
+
+	public function getMember()
+	{
+		$this->autoRender = false;
+		if (!$this->auth()) {
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		if ($this->getRole() == self::USER) {
+			return json_encode(array(
+				'error' => 'You dont have permission'
+			));
+		}
+
+		$data = $this->User->find('all',array(
+			'conditions' => array(
+				'User.email !=' => $_SERVER['HTTP_USER_EMAIL']
 			)
 		));
 
@@ -685,7 +896,8 @@ class ApiController extends AppController
 			'create_at' => $create_at,
 			'reason' => $reason,
 			'emotion' => $emotion,
-			'status' => $status
+			'status' => $status,
+			'notice' => '0'
 		);
 
 		$this->Leave->create();
@@ -727,6 +939,13 @@ class ApiController extends AppController
 		$day_left = $data['User']['day_off_left'] - $duration;
 		$status = self::WAITTING;
 
+		$user = array(
+			'day_off_left' => $day_left
+		);
+
+		$this->User->id = $id;
+		$this->User->save($user);
+
 		$save = array(
 			'user_id' => $id,
 			'type' => $type,
@@ -736,7 +955,8 @@ class ApiController extends AppController
 			'reason' => $reason,
 			'emotion' => $emotion,
 			'day_left' => $day_left,
-			'status' => $status
+			'status' => $status,
+			'notice' => '0'
 		);
 
 		$this->Off->create();
@@ -748,24 +968,47 @@ class ApiController extends AppController
 	}
 
 	// chuyen sang private
-	public function sendChatWork($data)
+	private function sendChatWork($data)
 	{
+		//room_id, accesstoken, 
+		$room_id = ROOM_ID;
+		$access_token = $data['access_token'];
+		$content = $data['content'];
+
+		$chatwork_name = 'Test';//$data['name'];
+		$chatwork_id = '2503016';
+		
+
 		$this->autoRender = false;
+		$url = 'https://api.chatwork.com/v2/rooms/'.$room_id.'/messages';
 
-		ChatworkSDK::setApiKey(self::TEST_TOKEN);
-		$api = new ChatworkApi();
-		$room = new ChatworkRoom(self::TEST_ROOM);
+		$header = array(
+			'Authorization: Bearer '.$access_token
+		);
 
-		//send message
+		//to someone
+		$message = '[To:'.$chatwork_id.'] '.$chatwork_name.PHP_EOL.$content;
 
-		// $room->sendMessage("Test, Hello");
+		//reply someone
+		//$message = '[Reply aid='.$chatwork_id.'] '.$chatwork_name;
 
-		$members = $room->getMembers();
-		foreach ($members as $member) {
-		    if ($member->account_id == self::TEST_ID) {
-		    	$room->sendMessageToList(array($member), 'Test gui cho Cuong');
-		    }
-		}
+		//quote some one
+		//todo
+
+		$data = array(
+			'body' => $message
+		);
+
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_POST,TRUE);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+		$response = curl_exec($ch);
+		curl_close($ch);
+		return json_decode($response);
 	}
 
 	public function addComment()
@@ -807,43 +1050,258 @@ class ApiController extends AppController
 		}
 	}
 
-	public function editComment()
+	public function deleteComment()
 	{
-		# code...
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		$email = $_SERVER['HTTP_USER_EMAIL'];
+		$id = $_POST['id'];
+
+		$data = $this->User->find(
+			'first',
+			array(
+				'conditions' => array(
+					'User.email' => $email
+				)
+		));
+
+		$check = $this->Comment->find('first',array(
+			'conditions' => array(
+				'Comment.id' => $id,
+				'Comment.user_id' => $data['User']['id']
+			)
+		));
+
+		if (empty($check)) {
+			return json_encode(array(
+				'error' => 'You can not delete other people\'s comment'
+			));
+		}
+
+		if ($this->Comment->delete($id)) {
+			return json_encode("1");
+		} else {
+			return json_encode("0");
+		}
 	}
 
 	public function notification()
 	{
-		# code...
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		if ($this->getRole() == self::ADMIN) {
+
+			$offData = $this->Off->find('all',array(
+				'conditions' => array(
+					'Off.status' => self::WAITTING
+				)
+			));
+
+			$leaveData = $this->Leave->find('all',array(
+				'conditions' => array(
+					'Leave.status' => self::WAITTING
+				)
+			));
+
+			$data = array();
+
+			foreach ($offData as $key => $value) {
+				$data[] = array(
+					'id' => $value['Off']['id'],
+					'user_id' => $value['Off']['user_id'],
+					'duration' => $value['Off']['duration'],
+					'dates' => $value['Off']['dates'],
+					'create_at' => $value['Off']['create_at'],
+					'approve_time' => $value['Off']['approve_time'],
+					'reason' => $value['Off']['reason'],
+					'emotion' => $value['Off']['emotion'],
+					'type' => $value['Type']['description'],
+					'day_left' => $value['Off']['day_left'],
+					'status' => $value['Status']['status'],
+					'time' => strtotime($value['Off']['create_at']),
+					'user_name' => $value['User']['name'],
+					'info' => 'off',
+					'author' => array(
+						'name' =>  $value['User']['name'],
+						'avatar' => $value['User']['avatar']
+					)
+				);
+			}
+
+			foreach ($leaveData as $key => $value) {
+				$data[] = array(
+					'id' => $value['Leave']['id'],
+					'user_id' => $value['Leave']['user_id'],
+					'start' => $value['Leave']['start'],
+					'end' => $value['Leave']['end'],
+					'date' => $value['Leave']['date'],
+					'create_at' => $value['Leave']['create_at'],
+					'approve_time' => $value['Leave']['approve_time'],
+					'reason' => $value['Leave']['reason'],
+					'emotion' => $value['Leave']['emotion'],
+					'status' => $value['Status']['status'],
+					'time' => strtotime($value['Leave']['create_at']),
+					'user_name' => $value['User']['name'],
+					'info' => 'leave',
+					'author' => array(
+						'name' =>  $value['User']['name'],
+						'avatar' => $value['User']['avatar']
+					)
+				);
+			}
+
+			function build_sorter($key) {
+			    return function ($a, $b) use ($key) {
+			        return $a[$key] - $b[$key];
+			    };
+			}
+
+			usort($data, build_sorter('time'));
+
+			return json_encode($data, JSON_PRETTY_PRINT);
+		} else {
+			$offData = $this->Off->find('all',array(
+				'conditions' => array(
+					'Off.notice' => '1',
+					'User.email' => $_SERVER['HTTP_USER_EMAIL']
+				)
+			));
+
+			$leaveData = $this->Leave->find('all',array(
+				'conditions' => array(
+					'Leave.notice' => '1',
+					'User.email' => $_SERVER['HTTP_USER_EMAIL']
+				)
+			));
+
+			$data = array();
+
+			foreach ($offData as $key => $value) {
+				$data[] = array(
+					'id' => $value['Off']['id'],
+					'user_id' => $value['Off']['user_id'],
+					'duration' => $value['Off']['duration'],
+					'dates' => $value['Off']['dates'],
+					'create_at' => $value['Off']['create_at'],
+					'reason' => $value['Off']['reason'],
+					'emotion' => $value['Off']['emotion'],
+					'type' => $value['Type']['description'],
+					'day_left' => $value['Off']['day_left'],
+					'status' => $value['Status']['status'],
+					'notice' => $value['Off']['notice'],
+					'time' => strtotime($value['Off']['create_at']),
+					'user_name' => $value['User']['name'],
+					'info' => 'off',
+					'author' => array(
+						'name' =>  $value['User']['name'],
+						'avatar' => $value['User']['avatar']
+					)
+				);
+			}
+
+			foreach ($leaveData as $key => $value) {
+				$data[] = array(
+					'id' => $value['Leave']['id'],
+					'user_id' => $value['Leave']['user_id'],
+					'start' => $value['Leave']['start'],
+					'end' => $value['Leave']['end'],
+					'date' => $value['Leave']['date'],
+					'create_at' => $value['Leave']['create_at'],
+					'reason' => $value['Leave']['reason'],
+					'emotion' => $value['Leave']['emotion'],
+					'status' => $value['Status']['status'],
+					'notice' => $value['Leave']['notice'],
+					'time' => strtotime($value['Leave']['create_at']),
+					'user_name' => $value['User']['name'],
+					'info' => 'leave',
+					'author' => array(
+						'name' =>  $value['User']['name'],
+						'avatar' => $value['User']['avatar']
+					)
+				);
+			}
+
+			function build_sorter($key) {
+			    return function ($a, $b) use ($key) {
+			        return $a[$key] - $b[$key];
+			    };
+			}
+
+			usort($data, build_sorter('time'));
+
+			return json_encode($data, JSON_PRETTY_PRINT);
+		}
 	}
 
 	public function test()
 	{
 		$this->autoRender = false;
-		$leave_id = 1;
 
-		$leaveData = $this->Leave->find(
-			'first',
-			array(
-				'conditions' => array(
-					'Leave.id' => $leave_id
-				)
-			)
-		);
+		$email = 'rainbow.bkhn@gmail.com';
+		$data = array('email' => $email);
+		$check_url = 'http://118.70.151.39:3000/chatwork/api/checkexist/';//.$email;
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_POST,TRUE);
+		curl_setopt($ch, CURLOPT_URL, $check_url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-		$commentData = $this->Comment->find(
-			'all',
-			array(
-				'conditions' => array(
-					'Leave.id' => $leave_id
-				)
-			)
-		);
+		$response = curl_exec($ch);
+		curl_close($ch);
+		pr($response);
 
-		pr($leaveData);
-		pr($commentData);
+		// if (empty($data)) {
+		//         echo "0";
+		// } else {
+		//         echo "1";
+		// }
 
-		// echo json_encode($data, JSON_PRETTY_PRINT);
+		// $access_token = '1234';
+		// $refresh_token = 'r1234';
+		// $name = 'HuanCao';
+		// $avatar = '123';
+		// $email = 'huancaopro93@gmail.com';
+
+		// $save_url = 'http://192.168.0.22/chatwork/api/saveinfo/'.$access_token.'/'.$refresh_token.'/'.
+		// $name.'/'.$avatar.'/'.$email;
+		// $save = file_get_contents($save_url);
+
+		// echo $save;
+
+		//test account
+		// $id = '30';
+		// $user = $this->User->find('first',array(
+		// 	'conditions' => array(
+		// 		'User.id' => $id
+		// 	)
+		// ));
+
+		// $data = array(
+		// 	'access_token' => $user['User']['access_token'],
+		// 	'content' => 'Test chatwork'
+		// );
+
+		// $res = $this->sendChatWork($data);
+
+		// if (isset($res->errors)) {
+		// 	$access_token = $this->getAccessToken($user['User']['refresh_token']);
+		// 	$data['access_token'] = $access_token;
+		// 	$res = $this->sendChatWork($data);
+		// 	pr($res);
+		// }
 	}
 }
 ?>
