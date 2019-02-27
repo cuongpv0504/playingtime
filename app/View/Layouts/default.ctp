@@ -13,7 +13,7 @@
 		echo $this->Html->script('jquery-3.3.1.min');
 		echo $this->Html->css('bootstrap.min');
 		echo $this->Html->script('bootstrap.min');
-	?>	
+	?>
 </head>
 <body>
 <?php 
