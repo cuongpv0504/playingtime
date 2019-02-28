@@ -112,7 +112,7 @@ class UsersController extends AppController
 		$this->User->save($save);
 
 		$this->redirect(array(
-			'controler' => 'users',
+			'controller' => 'users',
 			'action' => 'home'
 		));
 	}

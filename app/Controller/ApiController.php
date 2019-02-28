@@ -14,8 +14,7 @@ class ApiController extends AppController
 	public $uses = array('User','Leave','Off','Comment');
 	public $helpers = array('Html');
 
-	//xoa xin nghi khi chua accept, neu xoa thi phai send chatwork + tinh lai dayleft
-	//can kiem tra neu $_POST gui len bi thieu du lieu -> quan trong
+	//them send chatwork: add, accept, edit, delete
 
 	const APPROVED = 1;
 	const WAITTING = 2;
@@ -725,6 +724,22 @@ class ApiController extends AppController
 		$info = $_POST['info'];
 		$status = $_POST['status'];
 
+		$off_data = $this->Off->find('first',array(
+			'conditions' => array(
+				'Off.id' => $id
+			)
+		));
+
+		$user_data = $this->Off->find('first',array(
+			'conditions' => array(
+				'User.id' => $off_data['Off']['user_id']
+			)
+		));
+
+		$user_id = $user_data['User']['id'];
+		$day_off_left = $user_data['User']['day_off_left'];
+		$day_left = $off_data['Off']['day_left'];
+
 		if ($info == 'off') {
 			$this->Off->id = $id;
 			$save = array(
@@ -733,6 +748,12 @@ class ApiController extends AppController
 				'approve_time' => date("Y-m-d H:i:s")
 			);
 			if ($this->Off->save($save)) {
+				if ($status == self::DENY) {
+					$this->User->id = $user_id;
+					$this->User->save(array(
+						'day_off_left' => $day_off_left + $day_left
+					));
+				}
 				return json_encode('1');
 			}
 		} elseif ($info == 'leave') {
@@ -984,7 +1005,7 @@ class ApiController extends AppController
 		$reason = $_POST['reason'];
 		$emotion = $_POST['emotion'];
 		$day_left = $data['User']['day_off_left'] - $duration;
-		$status = self::WAITTING;
+		$status = self::WAITTING;		
 
 		$user = array(
 			'day_off_left' => $day_left
@@ -1011,6 +1032,92 @@ class ApiController extends AppController
 			return json_encode('1');
 		} else {
 			return json_encode('0');
+		}
+	}
+
+	//delete for leave and off
+	public function deleteRequest()
+	{
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			$this->response->statusCode(406);
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		$email = $_SERVER['HTTP_USER_EMAIL'];
+
+		$data = $this->User->find(
+			'first',
+			array(
+				'conditions' => array(
+					'User.email' => $email
+				)
+		));
+
+		$info = $_POST['info'];
+		//id of off, leave
+		$id = $_POST['id'];
+		$user_id = $data['User']['id'];
+
+		if ($info == 'off') {
+			$check = $this->Off->find('first',array(
+				'conditions' => array(
+					'Off.id' => $id,
+					'Off.user_id' => $user_id
+				)
+			));
+
+			//check owned
+			if (empty($check)) {
+				$this->response->statusCode(406);
+				return json_encode(array(
+					'error' => 'You dont have permission'
+				));
+			}
+
+			//delete off
+			if ($this->Off->delete($id)) {
+				$save = array(
+					'day_off_left' => $data['User']['day_off_left'] + $check['Off']['day_left']
+				);				
+				if ($check['Off']['status'] != self::DENY) {
+					$this->User->id = $user_id;
+					$this->User->save($save);
+				}				
+				return json_encode('1');
+			} else {
+				return json_encode('0');
+			}
+		} elseif ($info == 'leave') {
+			$check = $this->Leave->find('first',array(
+				'conditions' => array(
+					'Leave.id' => $id,
+					'Leave.user_id' => $user_id
+				)
+			));
+
+			//check owned
+			if (empty($check)) {
+				$this->response->statusCode(406);
+				return json_encode(array(
+					'error' => 'You dont have permission'
+				));
+			}
+
+			//delete Leave
+			if ($this->Leave->delete($id)) {
+				return json_encode('1');
+			} else {
+				return json_encode('0');
+			}
+		} else {
+			$this->response->statusCode(406);
+			return json_encode(array(
+				'error' => 'Wrong info'
+			));
 		}
 	}
 
