@@ -2,7 +2,6 @@ body {
     font-family: 'Roboto', sans-serif;
     font-weight: 400;
     background-color: #f0f3f5;
-    margin-top:40px;
 }
 .nav>li>a.userdd {
     padding: 5px 15px
@@ -202,28 +201,6 @@ body {
     margin-top: 10px;
 }
 
-/*form profile*/
-/*.input {*/
-    /*width: 90%;*/
-    /*!*padding: 10px;*!*/
-    /*background: transparent;*/
-    /*border: none;*/
-    /*outline: none;*/
-/*}*/
-.saveProfile > a {
-    /*padding: 12px 24px;*/
-    /*font-weight: bold;*/
-    color: #007bff;
-    border: none;
-    outline: none;
-    border-radius: 3px;
-    opacity: 0.7;
-}
-
-.saveProfile > a:hover {
-    color: #8BC34A;
-    text-decoration: none;
-}
 .list-group-item label {
     display: none;
 }
@@ -233,16 +210,41 @@ body {
     background: transparent;
     border: none;
     outline: none;
+    font-size: 17px;
 }
 
 .line {
-    /*position: absolute;*/
-    width: 100%;
+    position: absolute;
+    width: 0%;
     height: 2px;
-    /*top: 0px;*/
     left: 50%;
-    /*transform: translateX(-50%);*/
+    transform: translateX(-50%);
     background: #8BC34A;
-    /*transition: ease .6s;*/
-    display: none;
+    transition: ease .6s;
+}
+
+textarea {
+    border: none;
+    width: 100%;
+    font-size: 17px;
+}
+
+.submit input {
+    color: #007bff;
+    border: none;
+    opacity: 0.8;
+    transition: ease .3s;
+    float: right;
+    margin-right: 10px;
+    font-size: 17px;
+}
+
+.submit input:hover {
+    color: #8BC34A;
+}
+.card-body {
+    padding-bottom: 1.25rem;
+    padding-top: 1.25rem;
+    padding-left: 1.25rem;
+    padding-right: 0rem;
 }

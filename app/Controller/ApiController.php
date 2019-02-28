@@ -14,11 +14,11 @@ class ApiController extends AppController
 	public $uses = array('User','Leave','Off','Comment');
 	public $helpers = array('Html');
 
-	//xoa xin nghi khi chua accept 
+	//xoa xin nghi khi chua accept, neu xoa thi phai send chatwork + tinh lai dayleft
 	//can kiem tra neu $_POST gui len bi thieu du lieu -> quan trong
 
 	const APPROVED = 1;
-	const WAITTING = 2;
+	const WAITING = 2;
 	const DENY = 3;
 
 	const ADMIN = 1;
@@ -72,7 +72,6 @@ class ApiController extends AppController
 		return 0;
 	}
 
-	//response code here 
 	//save info when login by chatwork
 	public function saveInfo()
 	{
@@ -83,6 +82,7 @@ class ApiController extends AppController
 		$avatar = $_POST['avatar'];
 		$access_token = $_POST['access_token'];
 		$refresh_token = $_POST['refresh_token'];
+		$chatwork_id = $_POST['chatwork_id'];
 
 		$check = $this->User->find('first',array(
 			'conditions' => array(
@@ -102,7 +102,8 @@ class ApiController extends AppController
 			'access_token' => $access_token,
 			'refresh_token' => $refresh_token,
 			'name' => $name,
-			'avatar' => $avatar
+			'avatar' => $avatar,
+			'chatwork_id' => $chatwork_id
 		);
 
 		$this->User->id = $id;
@@ -114,7 +115,7 @@ class ApiController extends AppController
 	}
 
 	// by refresh token
-	public function getAccessToken($refreshToken = null)
+	private function getAccessToken($refreshToken = null)
 	{
 		$this->autoRender = false;
 
@@ -257,6 +258,16 @@ class ApiController extends AppController
 		}
 
 		foreach ($leaveData as $key => $value) {
+			$check = 'leave';
+
+			if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+				$check = 'leaving soon';
+			}
+
+			if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
+				$check = 'coming late';
+			}
+
 			$data[] = array(
 				'id' => $value['Leave']['id'],
 				'user_id' => $value['Leave']['user_id'],
@@ -270,16 +281,19 @@ class ApiController extends AppController
 				'time' => strtotime($value['Leave']['create_at']),
 				'user_name' => $value['User']['name'],
 				'info' => 'leave',
+				'check' => $check,
 				'author' => array(
 					'name' =>  $value['User']['name'],
 					'avatar' => $value['User']['avatar']
 				)
 			);
+
+			
 		}
 
 		function build_sorter($key) {
 		    return function ($a, $b) use ($key) {
-		        return $a[$key] - $b[$key];
+		        return $b[$key] - $a[$key];
 		    };
 		}
 
@@ -294,6 +308,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -326,6 +341,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -353,6 +369,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -403,6 +420,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -428,12 +446,14 @@ class ApiController extends AppController
 		));
 
 		if ($check['Leave']['user_id'] != $user_id) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
 		}
 
 		if ($check['Leave']['status'] != self::WAITTING) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Your request has been processed. You can not change request now.'
 			));
@@ -473,6 +493,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -499,12 +520,14 @@ class ApiController extends AppController
 		));
 
 		if ($check['Off']['user_id'] != $user_id) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
 		}
 
 		if ($check['Off']['status'] != self::WAITTING) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Your request has been processed. You can not change request now.'
 			));
@@ -544,6 +567,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -595,6 +619,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -612,6 +637,7 @@ class ApiController extends AppController
 		//check owned, if not check role
 		if (empty($checkOwn)) {
 			if ($this->getRole() == self::USER) {
+				$this->response->statusCode(406);
 				return json_encode(array(
 					'error' => 'You dont have permission'
 				));
@@ -681,12 +707,14 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() != self::ADMIN) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -727,12 +755,14 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() != self::ADMIN) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -775,6 +805,16 @@ class ApiController extends AppController
 		}
 
 		foreach ($leaveData as $key => $value) {
+			$check = 'leave';
+
+			if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+				$check = 'leaving soon';
+			}
+
+			if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
+				$check = 'coming late';
+			}
+
 			$data[] = array(
 				'id' => $value['Leave']['id'],
 				'user_id' => $value['Leave']['user_id'],
@@ -788,6 +828,7 @@ class ApiController extends AppController
 				'time' => strtotime($value['Leave']['create_at']),
 				'user_name' => $value['User']['name'],
 				'info' => 'leave',
+				'check' => $check,
 				'author' => array(
 					'name' =>  $value['User']['name'],
 					'avatar' => $value['User']['avatar']
@@ -797,7 +838,7 @@ class ApiController extends AppController
 
 		function build_sorter($key) {
 		    return function ($a, $b) use ($key) {
-		        return $a[$key] - $b[$key];
+		        return $b[$key] - $a[$key];
 		    };
 		}
 
@@ -812,12 +853,14 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() == self::USER) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -838,12 +881,14 @@ class ApiController extends AppController
 	{
 		$this->autoRender = false;
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() == self::USER) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -864,6 +909,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -914,6 +960,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -970,30 +1017,49 @@ class ApiController extends AppController
 	// chuyen sang private
 	private function sendChatWork($data)
 	{
+		$this->autoRender = false;
 		//room_id, accesstoken, 
 		$room_id = ROOM_ID;
 		$access_token = $data['access_token'];
 		$content = $data['content'];
 
-		$chatwork_name = 'Test';//$data['name'];
-		$chatwork_id = '2503016';
-		
+		$method = $data['method'];
+		$users = $data['users'];		
 
-		$this->autoRender = false;
 		$url = 'https://api.chatwork.com/v2/rooms/'.$room_id.'/messages';
 
 		$header = array(
 			'Authorization: Bearer '.$access_token
 		);
 
-		//to someone
-		$message = '[To:'.$chatwork_id.'] '.$chatwork_name.PHP_EOL.$content;
+		$message = '';
 
-		//reply someone
-		//$message = '[Reply aid='.$chatwork_id.'] '.$chatwork_name;
+		// 1: basic
+		// 2: to
+		// 3: reply
+		switch ($method) {
+			case '1':
+				$message = $message . $content;
+				break;
 
-		//quote some one
-		//todo
+			case '2':
+				foreach ($users as $key => $user) {
+					$message = $message . '[To:' . $user['chatwork_id'] . '] ' . $user['chatwork_name'] . PHP_EOL;
+				}
+				$message = $message . $content;
+				break;
+
+			case '3':
+				foreach ($users as $key => $user) {
+					$message = $message . '[rp aid=' . $user['chatwork_id'] . '] ' . $user['chatwork_name'] . PHP_EOL;
+				}
+				$message = $message . $content;
+				break;
+			
+			default:
+				$message = $message . $content;
+				break;
+		}
 
 		$data = array(
 			'body' => $message
@@ -1016,6 +1082,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1055,6 +1122,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1079,6 +1147,7 @@ class ApiController extends AppController
 		));
 
 		if (empty($check)) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'You can not delete other people\'s comment'
 			));
@@ -1096,6 +1165,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
+			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1133,6 +1203,7 @@ class ApiController extends AppController
 					'time' => strtotime($value['Off']['create_at']),
 					'user_name' => $value['User']['name'],
 					'info' => 'off',
+					'approve_time' => $value['Off']['approve_time'],
 					'author' => array(
 						'name' =>  $value['User']['name'],
 						'avatar' => $value['User']['avatar']
@@ -1141,6 +1212,16 @@ class ApiController extends AppController
 			}
 
 			foreach ($leaveData as $key => $value) {
+				$check = 'leave';
+
+				if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+					$check = 'leaving soon';
+				}
+
+				if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
+					$check = 'coming late';
+				}
+
 				$data[] = array(
 					'id' => $value['Leave']['id'],
 					'user_id' => $value['Leave']['user_id'],
@@ -1155,6 +1236,8 @@ class ApiController extends AppController
 					'time' => strtotime($value['Leave']['create_at']),
 					'user_name' => $value['User']['name'],
 					'info' => 'leave',
+					'approve_time' => $value['Leave']['approve_time'],
+					'check' => $check,
 					'author' => array(
 						'name' =>  $value['User']['name'],
 						'avatar' => $value['User']['avatar']
@@ -1164,7 +1247,7 @@ class ApiController extends AppController
 
 			function build_sorter($key) {
 			    return function ($a, $b) use ($key) {
-			        return $a[$key] - $b[$key];
+			        return $b[$key] - $a[$key];
 			    };
 			}
 
@@ -1204,6 +1287,7 @@ class ApiController extends AppController
 					'time' => strtotime($value['Off']['create_at']),
 					'user_name' => $value['User']['name'],
 					'info' => 'off',
+					'approve_time' => $value['Off']['approve_time'],
 					'author' => array(
 						'name' =>  $value['User']['name'],
 						'avatar' => $value['User']['avatar']
@@ -1212,6 +1296,16 @@ class ApiController extends AppController
 			}
 
 			foreach ($leaveData as $key => $value) {
+				$check = 'leave';
+
+				if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+					$check = 'leaving soon';
+				}
+
+				if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
+					$check = 'coming late';
+				}
+
 				$data[] = array(
 					'id' => $value['Leave']['id'],
 					'user_id' => $value['Leave']['user_id'],
@@ -1226,6 +1320,8 @@ class ApiController extends AppController
 					'time' => strtotime($value['Leave']['create_at']),
 					'user_name' => $value['User']['name'],
 					'info' => 'leave',
+					'approve_time' => $value['Off']['approve_time'],
+					'check' => $check,
 					'author' => array(
 						'name' =>  $value['User']['name'],
 						'avatar' => $value['User']['avatar']
@@ -1235,7 +1331,7 @@ class ApiController extends AppController
 
 			function build_sorter($key) {
 			    return function ($a, $b) use ($key) {
-			        return $a[$key] - $b[$key];
+			        return $b[$key] - $a[$key];
 			    };
 			}
 
@@ -1245,23 +1341,25 @@ class ApiController extends AppController
 		}
 	}
 
+	//USEFUL CODE, DONT DELETE
 	public function test()
 	{
 		$this->autoRender = false;
 
-		$email = 'rainbow.bkhn@gmail.com';
-		$data = array('email' => $email);
-		$check_url = 'http://118.70.151.39:3000/chatwork/api/checkexist/';//.$email;
-		
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_POST,TRUE);
-		curl_setopt($ch, CURLOPT_URL, $check_url);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		// $leaveData = $this->Leave->find('all');
 
-		$response = curl_exec($ch);
-		curl_close($ch);
-		pr($response);
+		// foreach ($leaveData as $key => $value) {
+		// 	if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+		// 		echo "leave soon";
+		// 	}
+		// 	pr(strtotime($value['Leave']['end']));
+
+			
+
+		// 	pr(strtotime('17:30:00'));
+		// 	echo "break";
+		// }
+		//=============
 
 		// if (empty($data)) {
 		//         echo "0";
@@ -1282,26 +1380,37 @@ class ApiController extends AppController
 		// echo $save;
 
 		//test account
-		// $id = '30';
-		// $user = $this->User->find('first',array(
-		// 	'conditions' => array(
-		// 		'User.id' => $id
-		// 	)
-		// ));
+		$id = '30';
+		$user = $this->User->find('first',array(
+			'conditions' => array(
+				'User.id' => $id
+			)
+		));
 
-		// $data = array(
-		// 	'access_token' => $user['User']['access_token'],
-		// 	'content' => 'Test chatwork'
-		// );
+		$data = array(
+			'access_token' => $user['User']['access_token'],
+			'content' => 'Test chatwork',
+			'method' => '3'
+		);
 
-		// $res = $this->sendChatWork($data);
+		$data['users'][] = array(
+			'chatwork_id' => JO_ID,
+			'chatwork_name' => JO_NAME
+		);
 
-		// if (isset($res->errors)) {
-		// 	$access_token = $this->getAccessToken($user['User']['refresh_token']);
-		// 	$data['access_token'] = $access_token;
-		// 	$res = $this->sendChatWork($data);
-		// 	pr($res);
-		// }
+		$data['users'][] = array(
+			'chatwork_id' => USUI_ID,
+			'chatwork_name' => USUI_NAME
+		);
+
+		$res = $this->sendChatWork($data);
+
+		if (isset($res->errors)) {
+			$access_token = $this->getAccessToken($user['User']['refresh_token']);
+			$data['access_token'] = $access_token;
+			$res = $this->sendChatWork($data);			
+		}
+		pr($res);
 	}
 }
 ?>
