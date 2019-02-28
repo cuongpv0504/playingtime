@@ -13,11 +13,11 @@ class UsersController extends AppController
 	public $uses = array('User','Leave','Off','Comment');
 	public $helpers = array('Html');
 
-	//xoa xin nghi khi chua accept 
+	//xoa xin nghi khi chua accept
 	//can kiem tra neu $_POST gui len bi thieu du lieu -> quan trong
 
 	const APPROVED = 1;
-	const WAITTING = 2;
+	const WAITING = 2;
 	const DENY = 3;
 
 	const ADMIN = 1;
@@ -285,5 +285,181 @@ class UsersController extends AppController
 			// }
 		}
 	}
+
+    public function profile()
+    {
+        //data profile
+        $userData = $this->User->find(
+            'first',
+            array(
+                'conditions' => array(
+                    'email' => 'thaovtp@tmh-techlab.vn'
+                )
+            )
+        );
+
+        //data history off
+        $offData = $this->Off->find('all',array(
+            'conditions' => array(
+                'Off.user_id' => $userData['User']['id']
+            )
+        ));
+
+        foreach ($offData as $key => $value) {
+            $post_at = $this->timePost($value['Off']['create_at']);
+
+            $userData['Off'][] = array(
+                'id' => $value['Off']['id'],
+                'user_id' => $value['Off']['user_id'],
+                'duration' => $value['Off']['duration'],
+                'dates' => $value['Off']['dates'],
+                'create_at' => $value['Off']['create_at'],
+                'post_at' => $post_at,
+                'reason' => $value['Off']['reason'],
+                'emotion' => $value['Off']['emotion'],
+                'type' => $value['Type']['description'],
+                'day_left' => $value['Off']['day_left'],
+                'status' => $value['Status']['status'],
+                'time' => strtotime($value['Off']['create_at']),
+                'user_name' => $value['User']['name'],
+                'author' => array(
+                    'name' =>  $value['User']['name'],
+                    'avatar' => $value['User']['avatar']
+                )
+            );
+        }
+
+        //data history leave
+        $leaveData = $this->Leave->find('all',array(
+            'conditions' => array(
+                'Leave.user_id' => $userData['User']['id']
+            )
+        ));
+        foreach ($leaveData as $key => $value) {
+            $post_at = $this->timePost($value['Leave']['create_at']);
+
+            $check = 'leave';
+
+            if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+                $check = 'leaving soon';
+            }
+
+            if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
+                $check = 'coming late';
+            }
+
+            $userData['Leave'][] = array(
+                'id' => $value['Leave']['id'],
+                'user_id' => $value['Leave']['user_id'],
+                'start' => $value['Leave']['start'],
+                'end' => $value['Leave']['end'],
+                'date' => $value['Leave']['date'],
+                'create_at' => $value['Leave']['create_at'],
+                'post_at' => $post_at,
+                'reason' => $value['Leave']['reason'],
+                'emotion' => $value['Leave']['emotion'],
+                'status' => $value['Status']['status'],
+                'time' => strtotime($value['Leave']['create_at']),
+                'user_name' => $value['User']['name'],
+                'info' => 'leave',
+                'check' => $check,
+                'author' => array(
+                    'name' =>  $value['User']['name'],
+                    'avatar' => $value['User']['avatar']
+                )
+            );
+        }
+        $this->set('userData', $userData);
+
+        if($this->request->is("post")){
+            if($this->User->save($this->request->data)){
+                $this->response->header('Location',"/users/profile");
+                $this->Flash->set('save success');
+            }
+        }
+    }
+
+    public function timePost($time){
+        $start = $time;
+        $end = date('Y-m-d H:i:s');
+
+        $dtStart = new DateTime($start);
+        $dtEnd = new DateTime($end);
+
+        $diff = $dtStart->diff($dtEnd);
+
+        if (($diff->format("%y") >= 1) || ($diff->format("%m") >= 1) || ($diff->format("%d") >= 1)) {
+            $post_at = date('Y-m-d',strtotime($time));
+        } elseif ($diff->format("%h") >= 1) {
+            $post_at = $diff->format("%h") . ' hour ago';
+        } elseif ($diff->format("%i") >= 1) {
+            $post_at = $diff->format("%i") . ' min ago';
+        } else {
+            $post_at = 'just now';
+        }
+        return $post_at;
+    }
+    public function viewHistory(){
+	    $this->autoRender = false;
+        $userID = $this->request->data['userID'];
+        $data = array();
+        if(isset($this->request->data['offID'])){
+            $offData = $this->Off->find('all',array(
+                'conditions' => array(
+                    'Off.user_id' => $userID
+                )
+            ));
+            foreach ($offData as $key => $value) {
+                $post_at = $this->timePost($value['Off']['create_at']);
+                $data['Off'][] = array(
+                    'id' => $value['Off']['id'],
+                    'user_id' => $value['Off']['user_id'],
+                    'duration' => $value['Off']['duration'],
+                    'dates' => $value['Off']['dates'],
+                    'create_at' => $value['Off']['create_at'],
+                    'post_at' => $post_at,
+                    'reason' => $value['Off']['reason'],
+                    'emotion' => $value['Off']['emotion'],
+                    'type' => $value['Type']['description'],
+                    'day_left' => $value['Off']['day_left'],
+                    'status' => $value['Status']['status'],
+                    'time' => strtotime($value['Off']['create_at']),
+                    'user_name' => $value['User']['name'],
+                    'author' => array(
+                        'name' =>  $value['User']['name'],
+                        'avatar' => $value['User']['avatar']
+                    )
+                );
+            }
+        }elseif(isset($this->request->data['leaveID'])){
+            $leaveData = $this->Leave->find('all',array(
+                'conditions' => array(
+                    'Leave.user_id' => $userID
+                )
+            ));
+            foreach ($leaveData as $key => $value) {
+                $post_at = $this->timePost($value['Leave']['create_at']);
+                $data['Leave'][] = array(
+                    'id' => $value['Leave']['id'],
+                    'user_id' => $value['Leave']['user_id'],
+                    'start' => $value['Leave']['start'],
+                    'end' => $value['Leave']['end'],
+                    'date' => $value['Leave']['date'],
+                    'create_at' => $value['Leave']['create_at'],
+                    'post_at' => $post_at,
+                    'reason' => $value['Leave']['reason'],
+                    'emotion' => $value['Leave']['emotion'],
+                    'status' => $value['Status']['status'],
+                    'time' => strtotime($value['Leave']['create_at']),
+                    'user_name' => $value['User']['name'],
+                    'author' => array(
+                        'name' =>  $value['User']['name'],
+                        'avatar' => $value['User']['avatar']
+                    )
+                );
+            }
+        }
+
+    }
 }
 ?>

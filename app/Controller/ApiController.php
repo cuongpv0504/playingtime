@@ -17,7 +17,7 @@ class ApiController extends AppController
 	//them send chatwork: add, accept, edit, delete
 
 	const APPROVED = 1;
-	const WAITTING = 2;
+	const WAITING = 2;
 	const DENY = 3;
 
 	const ADMIN = 1;

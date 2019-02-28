@@ -148,4 +148,6 @@ body {
     top: -7px;
   }
 }
-
+.form-inline {
+  margin-right: 20px;
+}
