@@ -14,7 +14,7 @@ class ApiController extends AppController
 	public $uses = array('User','Leave','Off','Comment');
 	public $helpers = array('Html');
 
-	//them send chatwork: add, accept, edit, delete
+	//kiem tra type = AL truoc khi tru ngay phep
 
 	const APPROVED = 1;
 	const WAITING = 2;
@@ -54,8 +54,7 @@ class ApiController extends AppController
 	// role 1 admin
 	// role 2 manager
 	// role 3 user
-	private function getRole()
-	{
+	private function getRole() {
 		$email = $_SERVER['HTTP_USER_EMAIL'];
 
 		$check = $this->User->find('first',array(
@@ -451,7 +450,7 @@ class ApiController extends AppController
 			));
 		}
 
-		if ($check['Leave']['status'] != self::WAITTING) {
+		if ($check['Leave']['status'] != self::WAITING) {
 			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Your request has been processed. You can not change request now.'
@@ -525,7 +524,7 @@ class ApiController extends AppController
 			));
 		}
 
-		if ($check['Off']['status'] != self::WAITTING) {
+		if ($check['Off']['status'] != self::WAITING) {
 			$this->response->statusCode(406);
 			return json_encode(array(
 				'error' => 'Your request has been processed. You can not change request now.'
@@ -719,35 +718,90 @@ class ApiController extends AppController
 			));
 		}
 
+		$admin = $this->User->find('first',array(
+			'conditions' => array(
+				'User.email' => $_SERVER['HTTP_USER_EMAIL']
+			)
+		));
+
 		//id cua off hoac leave
 		$id = $_POST['id'];
 		$info = $_POST['info'];
 		$status = $_POST['status'];
 
-		$off_data = $this->Off->find('first',array(
-			'conditions' => array(
-				'Off.id' => $id
-			)
-		));
+		if ($info == 'off') {
+			$user_data = $this->Off->find('first',array(
+				'conditions' => array(
+					'Off.id' => $_POST['id']
+				)
+			));
+		} elseif ($info == 'leave') {
+			$user_data = $this->Leave->find('first',array(
+				'conditions' => array(
+					'Leave.id' => $_POST['id']
+				)
+			));
+		}
 
-		$user_data = $this->Off->find('first',array(
-			'conditions' => array(
-				'User.id' => $off_data['Off']['user_id']
-			)
-		));
+		if ($status == self::APPROVED) {
+			$data = array(
+				'access_token' => $admin['User']['access_token'],
+				'content' => '(roger)',
+				'method' => '3'
+			);
 
-		$user_id = $user_data['User']['id'];
-		$day_off_left = $user_data['User']['day_off_left'];
-		$day_left = $off_data['Off']['day_left'];
+			$data['users'][] = array(
+				'chatwork_id' => $user_data['User']['chatwork_id'],
+				'chatwork_name' => $user_data['User']['name']
+			);
+
+			$res = $this->sendChatWork($data);
+
+			if (isset($res->errors)) {
+				$access_token = $this->getAccessToken($admin['User']['refresh_token']);
+				$data['access_token'] = $access_token;
+				$res = $this->sendChatWork($data);			
+			}
+		} elseif ($status == self::DENY) {
+			$data = array(
+				'access_token' => $user_data['User']['access_token'],
+				'content' => '(shake)',
+				'method' => '3'
+			);
+
+			$data['users'][] = array(
+				'chatwork_id' => $user_data['User']['chatwork_id'],
+				'chatwork_name' => $user_data['User']['name']
+			);
+
+			$res = $this->sendChatWork($data);
+
+			if (isset($res->errors)) {
+				$access_token = $this->getAccessToken($admin['User']['refresh_token']);
+				$data['access_token'] = $access_token;
+				$res = $this->sendChatWork($data);			
+			}
+		}
 
 		if ($info == 'off') {
+
+			$off_data = $this->Off->find('first',array(
+				'conditions' => array(
+					'Off.id' => $id
+				)
+			));
 			$this->Off->id = $id;
+
+			$user_id = $off_data['User']['id'];
+			$day_off_left = $off_data['User']['day_off_left'];
+			$day_left = $off_data['Off']['day_left'];
+
 			$save = array(
 				'status' => $status,
 				'notice' => '1',
 				'approve_time' => date("Y-m-d H:i:s")
 			);
-			if ($this->Off->save($save)) {
+			if ($this->Off->save($save) && ($off_data['Off']['type'] == 0)) {
 				if ($status == self::DENY) {
 					$this->User->id = $user_id;
 					$this->User->save(array(
@@ -791,13 +845,13 @@ class ApiController extends AppController
 
 		$offData = $this->Off->find('all',array(
 			'conditions' => array(
-				'Off.status' => self::WAITTING
+				'Off.status' => self::WAITING
 			)
 		));
 
 		$leaveData = $this->Leave->find('all',array(
 			'conditions' => array(
-				'Leave.status' => self::WAITTING
+				'Leave.status' => self::WAITING
 			)
 		));
 
@@ -938,7 +992,7 @@ class ApiController extends AppController
 
 		$email = $_SERVER['HTTP_USER_EMAIL'];
 
-		$data = $this->User->find(
+		$user_data = $this->User->find(
 			'first',
 			array(
 				'conditions' => array(
@@ -946,14 +1000,14 @@ class ApiController extends AppController
 				)
 		));
 
-		$id = $data['User']['id'];
+		$id = $user_data['User']['id'];
 		$end = $_POST['end'];
 		$start = $_POST['start'];
 		$date  = $_POST['date'];
 		$create_at = date("Y-m-d H:i:s"); 
 		$reason = $_POST['reason'];
 		$emotion = $_POST['emotion'];
-		$status = self::WAITTING;
+		$status = self::WAITING;
 
 		$save = array(
 			'user_id' => $id,
@@ -969,6 +1023,44 @@ class ApiController extends AppController
 
 		$this->Leave->create();
 		if ($this->Leave->save($save)) {
+
+			//send chatwork
+			$data = array(
+				'access_token' => $user_data['User']['access_token'],
+				'method' => '2'
+			);
+
+			$data['content'] = 'Because ' . $reason . ', I want to leave the office from ' . date("H:i", strtotime($start))
+			. ' to ' . date("H:i", strtotime($end)) . '. I hope you aprrove. (bow)';
+
+			if (strtotime($end) == strtotime('17:30:00')) {
+				$data['content'] = 'Because ' . $reason . ', I want to leaving soon from ' . date("H:i", strtotime($start))
+			. '. I hope you aprrove. (bow)';
+			}
+
+			if (strtotime($start) == strtotime('08:30:00')) {
+				$data['content'] = 'Because ' . $reason . ', I want to coming late at ' . date("H:i", strtotime($end))
+			. '. I hope you aprrove. (bow)';
+			}
+
+			$data['users'][] = array(
+			'chatwork_id' => JO_ID,
+			'chatwork_name' => JO_NAME
+			);
+
+			$data['users'][] = array(
+				'chatwork_id' => USUI_ID,
+				'chatwork_name' => USUI_NAME
+			);
+			
+			$res = $this->sendChatWork($data);
+
+			if (isset($res->errors)) {
+				$access_token = $this->getAccessToken($user_data['User']['refresh_token']);
+				$data['access_token'] = $access_token;
+				$res = $this->sendChatWork($data);			
+			}
+
 			return json_encode('1');
 		} else {
 			return json_encode('0');
@@ -989,7 +1081,7 @@ class ApiController extends AppController
 
 		$email = $_SERVER['HTTP_USER_EMAIL'];
 
-		$data = $this->User->find(
+		$user_data = $this->User->find(
 			'first',
 			array(
 				'conditions' => array(
@@ -997,15 +1089,21 @@ class ApiController extends AppController
 				)
 		));
 
-		$id = $data['User']['id'];
+		$id = $user_data['User']['id'];
 		$duration = $_POST['duration'];
 		$type = $_POST['type'];
 		$dates  = $_POST['dates'];
 		$create_at = date("Y-m-d H:i:s"); 
 		$reason = $_POST['reason'];
 		$emotion = $_POST['emotion'];
-		$day_left = $data['User']['day_off_left'] - $duration;
-		$status = self::WAITTING;		
+		
+		$status = self::WAITING;		
+
+		if ($type == 0) {
+			$day_left = $user_data['User']['day_off_left'] - $duration;
+		} else {
+			$day_left = $user_data['User']['day_off_left'];
+		}
 
 		$user = array(
 			'day_off_left' => $day_left
@@ -1029,6 +1127,33 @@ class ApiController extends AppController
 
 		$this->Off->create();
 		if ($this->Off->save($save)) {
+			
+			//send chatwork
+			$data = array(
+				'access_token' => $user_data['User']['access_token'],
+				'content' => 'Because ' . $reason . ', I want to take ' . $duration . ' day off on ' . $dates
+				. '. I hope you aprrove, Thank you (bow)',
+				'method' => '2'
+			);
+
+			$data['users'][] = array(
+			'chatwork_id' => JO_ID,
+			'chatwork_name' => JO_NAME
+			);
+
+			$data['users'][] = array(
+				'chatwork_id' => USUI_ID,
+				'chatwork_name' => USUI_NAME
+			);
+
+			$res = $this->sendChatWork($data);
+
+			if (isset($res->errors)) {
+				$access_token = $this->getAccessToken($user_data['User']['refresh_token']);
+				$data['access_token'] = $access_token;
+				$res = $this->sendChatWork($data);			
+			}
+
 			return json_encode('1');
 		} else {
 			return json_encode('0');
@@ -1070,6 +1195,10 @@ class ApiController extends AppController
 				)
 			));
 
+			$reason = $check['Off']['reason'];
+			$duration = $check['Off']['duration'];
+			$dates = $check['Off']['dates'];
+
 			//check owned
 			if (empty($check)) {
 				$this->response->statusCode(406);
@@ -1078,8 +1207,34 @@ class ApiController extends AppController
 				));
 			}
 
+			//send chatwork
+			$chatwork_data = array(
+				'access_token' => $data['User']['access_token'],
+				'content' => 'I was looking for take '. $duration . ' day off on ' . $dates . ' because ' . $reason .
+				'. But now Im no longer need to leave on those days. So I want to cancel my request. Sorry for inconvenience (bow).',
+				'method' => '2'
+			);
+
+			$chatwork_data['users'][] = array(
+			'chatwork_id' => JO_ID,
+			'chatwork_name' => JO_NAME
+			);
+
+			$chatwork_data['users'][] = array(
+				'chatwork_id' => USUI_ID,
+				'chatwork_name' => USUI_NAME
+			);
+
+			$res = $this->sendChatWork($chatwork_data);
+
+			if (isset($res->errors)) {
+				$access_token = $this->getAccessToken($data['User']['refresh_token']);
+				$chatwork_data['access_token'] = $access_token;
+				$res = $this->sendChatWork($chatwork_data);			
+			}
+
 			//delete off
-			if ($this->Off->delete($id)) {
+			if ($this->Off->delete($id) && ($check['Off']['type'] == 0)) {
 				$save = array(
 					'day_off_left' => $data['User']['day_off_left'] + $check['Off']['day_left']
 				);				
@@ -1105,6 +1260,43 @@ class ApiController extends AppController
 				return json_encode(array(
 					'error' => 'You dont have permission'
 				));
+			}
+
+			//send chatwork
+			$chatwork_data = array(
+				'access_token' => $data['User']['access_token'],
+				'method' => '2'
+			);
+
+			$chatwork_data['content'] = 'I was looking for leaving the office from ' . date("H:i", strtotime($start))
+			. ' to ' . date("H:i", strtotime($end)) . ' because ' . $reason . '. But now Im no longer need to leaving the the office at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+
+			if (strtotime($end) == strtotime('17:30:00')) {
+				$chatwork_data['content'] = 'I was looking for leaving soon from ' . date("H:i", strtotime($start))
+			. ' because ' . $reason . '. But now Im no longer need to leaving soon at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+			}
+
+			if (strtotime($start) == strtotime('08:30:00')) {
+				$chatwork_data['content'] = 'I was looking for coming late at ' . date("H:i", strtotime($end))
+			. ' because ' . $reason .  '. But now Im no longer need to coming late at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+			}
+
+			$chatwork_data['users'][] = array(
+			'chatwork_id' => JO_ID,
+			'chatwork_name' => JO_NAME
+			);
+
+			$chatwork_data['users'][] = array(
+				'chatwork_id' => USUI_ID,
+				'chatwork_name' => USUI_NAME
+			);
+
+			$res = $this->sendChatWork($chatwork_data);
+
+			if (isset($res->errors)) {
+				$access_token = $this->getAccessToken($data['User']['refresh_token']);
+				$chatwork_data['access_token'] = $access_token;
+				$res = $this->sendChatWork($chatwork_data);			
 			}
 
 			//delete Leave
@@ -1282,13 +1474,13 @@ class ApiController extends AppController
 
 			$offData = $this->Off->find('all',array(
 				'conditions' => array(
-					'Off.status' => self::WAITTING
+					'Off.status' => self::WAITING
 				)
 			));
 
 			$leaveData = $this->Leave->find('all',array(
 				'conditions' => array(
-					'Leave.status' => self::WAITTING
+					'Leave.status' => self::WAITING
 				)
 			));
 
