@@ -14,7 +14,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="/request">
                     <i class="fa fa-envelope-o">
                         <span class="badge badge-danger">11</span>
                     </i>
@@ -29,25 +29,8 @@
                     Disabled
                 </a>
             </li>
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i class="fa fa-envelope-o">
-                        <span class="badge badge-primary">11</span>
-                    </i>
-                    Dropdown
-                </a>
-                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="#">Action</a>
-                    <a class="dropdown-item" href="#">Another action</a>
-                    <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-            </li>
+
         </ul>
-        <!--<form class="form-inline my-2 my-lg-0">-->
-            <!--<input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">-->
-            <!--<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
-        <!--</form>-->
         <form class="form-inline">
             <div class="input-group">
                 <input type="text" class="form-control" placeholder="Search"  aria-label="Recipient's username" aria-describedby="button-addon2">
@@ -68,14 +51,44 @@
                     Notice
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/users/profile">
-                    <i class="fa fa-globe">
-                        <span class="badge badge-success">11</span>
-                    </i>
-                    Profile
-                </a>
+            <li class="nav-item dropdown" style="padding-top: 10px">
+                <div class="d-flex justify-content-between align-items-center">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarUser" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="rounded-circle" width="45" src="https://appdata.chatwork.com/avatar/3079/3079808.rsz.jpg" alt="">
+                            thao
+                        </a>
+
+                        <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>-->
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/users/profile">Profile</a>
+                        <a class="dropdown-item" href="#">Logout</a>
+                    </div>
+                </div>
             </li>
         </ul>
     </div>
 </nav>
+<style>
+    .dropdown-menu {
+       left: -25px;
+        /*width: 10px;*/
+    }
+    .bg-dark {
+        background: url(https://asqblog.files.wordpress.com/2018/08/network-3357642_1280.jpg?w=1280) no-repeat top center;
+        background-size: 100%;
+    }
+</style>
+<script>
+    $(document).ready(function(){
+        $(".dropdown").hover(
+            function() {
+                $('.dropdown-menu', this).not('.in .dropdown-menu').stop( true, true ).slideDown("fast");
+                $(this).toggleClass('open');
+            },
+            function() {
+                $('.dropdown-menu', this).not('.in .dropdown-menu').stop( true, true ).slideUp("fast");
+                $(this).toggleClass('open');
+            }
+        );
+    });
+</script>

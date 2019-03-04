@@ -33,7 +33,7 @@
                             </div>
                             <div class="ml-2">
                                 <div class="h5 m-0"><?php echo $value['user_name'] ?></div>
-                                <div class="h7 text-muted"><?php echo $value['user_name'] ?></div>
+                                <div class="h7 text-muted"><?php echo $value['author']['email'] ?></div>
                             </div>
                         </div>
                         <div>

@@ -193,7 +193,8 @@ class UsersController extends AppController
 				'info' => 'off',
 				'author' => array(
 					'name' =>  $value['User']['name'],
-					'avatar' => $value['User']['avatar']
+					'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
 				)
 			);
 		}
@@ -244,7 +245,8 @@ class UsersController extends AppController
 				'check' => $check,
 				'author' => array(
 					'name' =>  $value['User']['name'],
-					'avatar' => $value['User']['avatar']
+					'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
 				)
 			);
 		}
@@ -317,6 +319,7 @@ class UsersController extends AppController
                 'post_at' => $post_at,
                 'reason' => $value['Off']['reason'],
                 'emotion' => $value['Off']['emotion'],
+                'type_id' => $value['Off']['type'],
                 'type' => $value['Type']['description'],
                 'day_left' => $value['Off']['day_left'],
                 'status' => $value['Status']['status'],
@@ -324,7 +327,8 @@ class UsersController extends AppController
                 'user_name' => $value['User']['name'],
                 'author' => array(
                     'name' =>  $value['User']['name'],
-                    'avatar' => $value['User']['avatar']
+                    'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
                 )
             );
         }
@@ -365,10 +369,12 @@ class UsersController extends AppController
                 'check' => $check,
                 'author' => array(
                     'name' =>  $value['User']['name'],
-                    'avatar' => $value['User']['avatar']
+                    'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
                 )
             );
         }
+        $this->log($userData);
         $this->set('userData', $userData);
 
         if($this->request->is("post")){
@@ -399,6 +405,7 @@ class UsersController extends AppController
         }
         return $post_at;
     }
+
     public function viewHistory(){
 	    $this->autoRender = false;
         $userID = $this->request->data['userID'];
