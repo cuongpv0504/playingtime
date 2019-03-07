@@ -332,7 +332,13 @@ class UsersController extends AppController
                 )
             );
         }
+        function build_sorter($key) {
+            return function ($a, $b) use ($key) {
+                return $b[$key] - $a[$key];
+            };
+        }
 
+        usort($userData['Off'], build_sorter('time'));
         //data history leave
         $leaveData = $this->Leave->find('all',array(
             'conditions' => array(
@@ -374,6 +380,13 @@ class UsersController extends AppController
                 )
             );
         }
+        function buildSorter($key) {
+            return function ($a, $b) use ($key) {
+                return $b[$key] - $a[$key];
+            };
+        }
+
+        usort($userData['Leave'], buildSorter('time'));
         $this->log($userData);
         $this->set('userData', $userData);
 
