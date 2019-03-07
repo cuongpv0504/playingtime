@@ -46,6 +46,9 @@ class UsersController extends AppController
 	public function callback()
 	{
 		$this->autoRender = false;
+		if (!session_id()) {
+            session_start();
+        }
 
 		$url = 'https://oauth.chatwork.com/token';
 		$data = array(
@@ -111,6 +114,8 @@ class UsersController extends AppController
 		$this->User->id = $id;
 		$this->User->save($save);
 
+		$_SESSION['email'] = $email;
+
 		$this->redirect(array(
 			'controller' => 'users',
 			'action' => 'home'
@@ -153,6 +158,10 @@ class UsersController extends AppController
 	{
 		$offData = $this->Off->find('all');
 		$leaveData = $this->Leave->find('all');
+
+		if (!session_id()) {
+            session_start();
+        } 
 
 		$data = array();
 
@@ -288,12 +297,16 @@ class UsersController extends AppController
 
     public function profile()
     {
+    	if (!session_id()) {
+            session_start();
+        }
+
         //data profile
         $userData = $this->User->find(
             'first',
             array(
                 'conditions' => array(
-                    'email' => 'thaovtp@tmh-techlab.vn'
+                    'email' => $_SESSION['email']
                 )
             )
         );
@@ -373,13 +386,14 @@ class UsersController extends AppController
 
         if($this->request->is("post")){
             if($this->User->save($this->request->data)){
-                $this->response->header('Location',"/users/profile");
+                $this->response->header('Location',"/chatwork/users/profile");
                 $this->Flash->set('save success');
             }
         }
     }
 
-    public function timePost($time){
+    public function timePost($time)
+    {
         $start = $time;
         $end = date('Y-m-d H:i:s');
 
@@ -399,7 +413,9 @@ class UsersController extends AppController
         }
         return $post_at;
     }
-    public function viewHistory(){
+
+    public function viewHistory()
+    {
 	    $this->autoRender = false;
         $userID = $this->request->data['userID'];
         $data = array();
@@ -459,7 +475,6 @@ class UsersController extends AppController
                 );
             }
         }
-
     }
 }
 ?>

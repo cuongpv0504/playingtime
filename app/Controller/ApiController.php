@@ -15,6 +15,7 @@ class ApiController extends AppController
 	public $helpers = array('Html');
 
 	//kiem tra type = AL truoc khi tru ngay phep
+	// kiem tra lai day off left sau khi edit off
 
 	const APPROVED = 1;
 	const WAITING = 2;
@@ -794,21 +795,44 @@ class ApiController extends AppController
 
 			$user_id = $off_data['User']['id'];
 			$day_off_left = $off_data['User']['day_off_left'];
-			$day_left = $off_data['Off']['day_left'];
+			$duration = $off_data['Off']['duration'];
 
 			$save = array(
 				'status' => $status,
 				'notice' => '1',
 				'approve_time' => date("Y-m-d H:i:s")
 			);
-			if ($this->Off->save($save) && ($off_data['Off']['type'] == 0)) {
+			if ($this->Off->save($save)) {
+				//update all off after
+				$offList = $this->Off->find('all',array(
+					'conditions' => array(
+						'Off.id >' => $id
+					)
+				));
+
+				foreach ($offList as $key => $off) {
+					$off_save = array(
+						'day_left' => $off['Off']['day_left'] + $off_data['Off']['duration']
+					);
+					if ($status != self::DENY && $off_data['Off']['type'] == 0) {
+						$this->Off->id = $off['Off']['id'];
+						$this->Off->save($off_save);
+					}
+				}
+
+				//update User day_off_left	
+				if ($off_data['Off']['type'] == 0) {
+					$day_off_left = $day_off_left + $duration;
+				}
 				if ($status == self::DENY) {
 					$this->User->id = $user_id;
 					$this->User->save(array(
-						'day_off_left' => $day_off_left + $day_left
+						'day_off_left' => $day_off_left
 					));
 				}
 				return json_encode('1');
+			} else {
+				return json_encode('0');
 			}
 		} elseif ($info == 'leave') {
 			$this->Leave->id = $id;
@@ -819,6 +843,8 @@ class ApiController extends AppController
 			);
 			if ($this->Leave->save($save)) {
 				return json_encode('1');
+			} else {
+				return json_encode('0');
 			}
 		}
 
@@ -1234,14 +1260,40 @@ class ApiController extends AppController
 			}
 
 			//delete off
-			if ($this->Off->delete($id) && ($check['Off']['type'] == 0)) {
-				$save = array(
-					'day_off_left' => $data['User']['day_off_left'] + $check['Off']['day_left']
-				);				
+			if ($this->Off->delete($id)) {
+				
+				//update all off after
+				$offList = $this->Off->find('all',array(
+					'conditions' => array(
+						'Off.id >' => $id
+					)
+				));
+
+				foreach ($offList as $key => $off_data) {
+					$off_save = array(
+						'day_left' => $off_data['Off']['day_left'] + $check['Off']['duration']
+					);
+					if ($check['Off']['status'] != self::DENY) {
+						$this->Off->id = $off_data['Off']['id'];
+						$this->Off->save($off_save);
+					}
+				}
+
+				//update User day_off_left
+				if ($check['Off']['type'] == 0) {
+					$save = array(
+						'day_off_left' => $data['User']['day_off_left'] + $check['Off']['duration']
+					);				
+				} else {
+					$save = array(
+						'day_off_left' => $data['User']['day_off_left']
+					);
+				}		
 				if ($check['Off']['status'] != self::DENY) {
 					$this->User->id = $user_id;
 					$this->User->save($save);
-				}				
+				}
+
 				return json_encode('1');
 			} else {
 				return json_encode('0');
@@ -1638,6 +1690,46 @@ class ApiController extends AppController
 
 			return json_encode($data, JSON_PRETTY_PRINT);
 		}
+	}
+
+	public function getDayOffLeft()
+	{
+		$this->autoRender = false;
+
+		if (!$this->auth()) {
+			$this->response->statusCode(406);
+			return json_encode(array(
+				'error' => 'Can not authenicate'
+			));
+		}
+
+		$email = $_SERVER['HTTP_USER_EMAIL'];
+
+		$user_data = $this->User->find('first',array(
+			'conditions' => array(
+				'User.email' => $email
+			)
+		));
+
+		if (isset($_POST['id'])) {
+			if ($this->getRole() != self::USER) {
+				$user_data = $this->User->find('first',array(
+					'conditions' => array(
+						'User.id' => $_POST['id']
+					)
+				));
+			} else {
+				return json_encode(array(
+					'error' => 'You dont have permission'
+				));
+			}
+		}	
+
+		$response = array(
+			'day_off_left' => $user_data['User']['day_off_left']
+		);
+
+		return json_encode($response, JSON_PRETTY_PRINT);
 	}
 
 	//USEFUL CODE, DONT DELETE

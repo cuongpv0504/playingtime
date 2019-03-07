@@ -7,7 +7,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="/users/home">
+                <a class="nav-link" href="/chatwork/users/home">
                     <i class="fa fa-home"></i>
                     Home
                     <span class="sr-only">(current)</span>
@@ -69,7 +69,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/users/profile">
+                <a class="nav-link" href="/chatwork/users/profile">
                     <i class="fa fa-globe">
                         <span class="badge badge-success">11</span>
                     </i>
