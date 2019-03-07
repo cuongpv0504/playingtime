@@ -31,4 +31,25 @@ App::uses('Controller', 'Controller');
  * @link		https://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+
+	public function beforeFilter() {
+	    if (!session_id()) {
+            session_start();
+        }
+
+        if ($this->action != 'login' && $this->action != 'callback')
+        {
+            if (empty($_SESSION['email'])) {
+            	$this->redirect('/users/login');
+            }
+
+            $data = $this->User->find('first',array(
+		    	'conditions' => array(
+		    		'User.email' => $_SESSION['email']
+		    	)
+		    ));
+
+		    $this->set('user_data',$data['User']);
+        }	    
+	}
 }

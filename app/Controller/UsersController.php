@@ -27,6 +27,9 @@ class UsersController extends AppController
 	const TEST_TOKEN = 'b26008724e3f7cfc392bfbd4d9707e5c';
 	const TEST_ROOM = '132078386';
 	const TEST_ID = '2503016'; // cuong chatwork id
+	public function beforeFilter() {
+	    parent::beforeFilter();
+	}
 
 	public function login()
 	{
@@ -43,12 +46,15 @@ class UsersController extends AppController
 		$this->set('login_url',$url);
 	}
 
+	public function logout()
+	{
+		session_destroy();
+		$this->redirect('login');
+	}
+
 	public function callback()
 	{
 		$this->autoRender = false;
-		if (!session_id()) {
-            session_start();
-        }
 
 		$url = 'https://oauth.chatwork.com/token';
 		$data = array(
@@ -115,6 +121,7 @@ class UsersController extends AppController
 		$this->User->save($save);
 
 		$_SESSION['email'] = $email;
+		// $_SESSION['avatar'] = $avatar;
 
 		$this->redirect(array(
 			'controller' => 'users',
@@ -157,11 +164,7 @@ class UsersController extends AppController
 	public function home()
 	{
 		$offData = $this->Off->find('all');
-		$leaveData = $this->Leave->find('all');
-
-		if (!session_id()) {
-            session_start();
-        } 
+		$leaveData = $this->Leave->find('all');		
 
 		$data = array();
 
@@ -202,7 +205,8 @@ class UsersController extends AppController
 				'info' => 'off',
 				'author' => array(
 					'name' =>  $value['User']['name'],
-					'avatar' => $value['User']['avatar']
+					'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
 				)
 			);
 		}
@@ -253,7 +257,8 @@ class UsersController extends AppController
 				'check' => $check,
 				'author' => array(
 					'name' =>  $value['User']['name'],
-					'avatar' => $value['User']['avatar']
+					'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
 				)
 			);
 		}
@@ -297,10 +302,6 @@ class UsersController extends AppController
 
     public function profile()
     {
-    	if (!session_id()) {
-            session_start();
-        }
-
         //data profile
         $userData = $this->User->find(
             'first',
@@ -330,6 +331,7 @@ class UsersController extends AppController
                 'post_at' => $post_at,
                 'reason' => $value['Off']['reason'],
                 'emotion' => $value['Off']['emotion'],
+                'type_id' => $value['Off']['type'],
                 'type' => $value['Type']['description'],
                 'day_left' => $value['Off']['day_left'],
                 'status' => $value['Status']['status'],
@@ -337,7 +339,8 @@ class UsersController extends AppController
                 'user_name' => $value['User']['name'],
                 'author' => array(
                     'name' =>  $value['User']['name'],
-                    'avatar' => $value['User']['avatar']
+                    'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
                 )
             );
         }
@@ -378,10 +381,12 @@ class UsersController extends AppController
                 'check' => $check,
                 'author' => array(
                     'name' =>  $value['User']['name'],
-                    'avatar' => $value['User']['avatar']
+                    'avatar' => $value['User']['avatar'],
+                    'email' => $value['User']['email']
                 )
             );
         }
+        $this->log($userData);
         $this->set('userData', $userData);
 
         if($this->request->is("post")){
