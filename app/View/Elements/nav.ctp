@@ -21,14 +21,6 @@
                     Add Request
                 </a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="#">
-                    <i class="fa fa-envelope-o">
-                        <span class="badge badge-warning">11</span>
-                    </i>
-                    Disabled
-                </a>
-            </li>
 
         </ul>
         <form class="form-inline">

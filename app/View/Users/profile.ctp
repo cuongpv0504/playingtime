@@ -6,111 +6,111 @@
 <div class="container-fluid">
     <div class="row" style="margin-top: 20px">
         <div class="col-md-2 col-sm-12 offset-md-1 pull-right">
-                <div class="card gedf-card">
-                    <?php
+            <div class="card gedf-card">
+                <?php
 			            echo $this->Form->create("User", array("type" => "file"));
-                    ?>
-                    <div class="card-header">
+                ?>
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex justify-content-between align-items-center">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="mr-2">
-                                    <div class="h5 m-0"><img class="rounded-circle" width="45" src="<?php echo $userData['User']['avatar']?>" alt="">  My Profile</div>
-                                </div>
+                            <div class="mr-2">
+                                <div class="h5 m-0"><img class="rounded-circle" width="45" src="<?php echo $userData['User']['avatar']?>" alt="">  My Profile</div>
                             </div>
                         </div>
+                    </div>
 
-                    </div>
-                    <div class="col-md-12">
-                        <ul class="list-group">
-                            <li class="list-group-item" style="display: none">
-                                <?php
-                                    echo $this->Form->Input("id", array(
-                                                "value" => $userData['User']['id'],
-                                                ));
-                                ?>
-                            </li>
-                            <li class="list-group-item">
-                                <?php
-                                    echo $this->Form->Input("name", array(
-                                                "value" => $userData['User']['name'],
-                                                "type" => "text",
-                                                "class" => "inputText",
-                                                "disabled" => "disabled"
-                                                ));
-                                ?>
-                                <div class="line"></div>
-                            </li>
-                            <li class="list-group-item">
-                                <?php
-                                    echo $this->Form->Input("email", array(
-                                        "value" => $userData['User']['email'],
-                                        "type" => "text",
-                                        "class" => "inputText",
-                                        "disabled" => "disabled"
-                                        ));
-                                ?>
-                                <div class="line"></div>
-                            </li>
-                            <li class="list-group-item">
-                                <?php
-                                    echo $this->Form->Input("birthday", array(
-                                        "value" => $userData['User']['birthday'],
-                                        "type" => "text",
-                                        "class" => "inputText"
-                                        ));
-                                ?>
-                                <div class="line"></div>
-                            </li>
-                            <li class="list-group-item">
-                                <?php
-                                    echo $this->Form->Input("address", array(
-                                        "value" => $userData['User']['address'],
-                                        "type" => "text",
-                                        "class" => "inputText"
-                                        ));
-                                ?>
-                                <div class="line"></div>
-                            </li>
-                            <li class="list-group-item">
-                                <?php
-                                    echo $this->Form->Input("country", array(
-                                        "value" => $userData['User']['country'],
-                                        "type" => "text",
-                                        "class" => "inputText"
-                                        ));
-                                ?>
-                                <div class="line"></div>
-                            </li>
-                            <li class="list-group-item">
-                                <?php
-                                    echo $this->Form->Input("description", array(
-                                        "value" => $userData['User']['description'],
-                                        "type" => "textarea",
-                                        "rows" => "3",
-                                        "class" => "inputText"
-                                        ));
-                                ?>
-                                <div class="line"></div>
-                            </li>
-                            <li class="list-group-item">
-                                <?php
-                                    echo $this->Form->Input("day_off_left", array(
-                                        "value" => $userData['User']['day_off_left'],
-                                        "type" => "text",
-                                        "class" => "inputText",
-                                        "disabled" => "disabled"
-                                        ));
-                                ?>
-                                <div class="line"></div>
-                            </li>
-                        </ul>
-                    </div>
-                    <?php
-				        echo $this->Form->end(array(
-                            'label' => 'Save profile'
-                            ));
-                        ?>
                 </div>
+                <div class="col-md-12">
+                    <ul class="list-group">
+                        <li class="list-group-item" style="display: none">
+                            <?php
+                                    echo $this->Form->Input("id", array(
+                            "value" => $userData['User']['id'],
+                            ));
+                            ?>
+                        </li>
+                        <li class="list-group-item">
+                            <?php
+                                    echo $this->Form->Input("name", array(
+                            "value" => $userData['User']['name'],
+                            "type" => "text",
+                            "class" => "inputText",
+                            "disabled" => "disabled"
+                            ));
+                            ?>
+                            <div class="line"></div>
+                        </li>
+                        <li class="list-group-item">
+                            <?php
+                                    echo $this->Form->Input("email", array(
+                            "value" => $userData['User']['email'],
+                            "type" => "text",
+                            "class" => "inputText",
+                            "disabled" => "disabled"
+                            ));
+                            ?>
+                            <div class="line"></div>
+                        </li>
+                        <li class="list-group-item">
+                            <?php
+                                    echo $this->Form->Input("birthday", array(
+                            "value" => $userData['User']['birthday'],
+                            "type" => "text",
+                            "class" => "inputText"
+                            ));
+                            ?>
+                            <div class="line"></div>
+                        </li>
+                        <li class="list-group-item">
+                            <?php
+                                    echo $this->Form->Input("address", array(
+                            "value" => $userData['User']['address'],
+                            "type" => "text",
+                            "class" => "inputText"
+                            ));
+                            ?>
+                            <div class="line"></div>
+                        </li>
+                        <li class="list-group-item">
+                            <?php
+                                    echo $this->Form->Input("country", array(
+                            "value" => $userData['User']['country'],
+                            "type" => "text",
+                            "class" => "inputText"
+                            ));
+                            ?>
+                            <div class="line"></div>
+                        </li>
+                        <li class="list-group-item">
+                            <?php
+                                    echo $this->Form->Input("description", array(
+                            "value" => $userData['User']['description'],
+                            "type" => "textarea",
+                            "rows" => "3",
+                            "class" => "inputText"
+                            ));
+                            ?>
+                            <div class="line"></div>
+                        </li>
+                        <li class="list-group-item">
+                            <?php
+                                    echo $this->Form->Input("day_off_left", array(
+                            "value" => $userData['User']['day_off_left'],
+                            "type" => "text",
+                            "class" => "inputText",
+                            "disabled" => "disabled"
+                            ));
+                            ?>
+                            <div class="line"></div>
+                        </li>
+                    </ul>
+                </div>
+                <?php
+				        echo $this->Form->end(array(
+                'label' => 'Save profile'
+                ));
+                ?>
+            </div>
 
             <div class="card gedf-card">
                 <div class="card-header">
@@ -479,12 +479,12 @@
             }
         });
     });
-    // $(window).scroll(function() {
-    //     if($(window).scrollTop() == $(document).height() - $(window).height()) {
-    //         // ajax call get data from server and append to the div
-    //         alert('End page');
-    //     }
-    // });
+    $(window).scroll(function() {
+        if($(window).scrollTop() == $(document).height() - $(window).height()) {
+            // ajax call get data from server and append to the div
+            alert('End page');
+        }
+    });
 </script>
 <style>
     .table-bordered {
