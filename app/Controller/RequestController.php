@@ -32,8 +32,7 @@ class RequestController extends AppController
         $typeData = $this->Type->find('all');
         $this->set('typeData', $typeData);
         if(!empty($_POST)){
-            $email = $_SERVER['HTTP_USER_EMAIL'];
-            $email = 'thaovtp@tmh-techlab.vn';
+            $email = $_SESSION['email'];
             $user_data = $this->User->find(
                 'first',
                 array(
@@ -50,6 +49,7 @@ class RequestController extends AppController
             }
         }
     }
+
     public function addOff($user_data,$off_data){
         $countDay = 0;
         foreach ($off_data['in'] as $in){
@@ -108,7 +108,7 @@ class RequestController extends AppController
         $this->Off->create();
         if ($this->Off->save($save)) {
 
-//            send chatwork
+            //send chatwork
             $data = array(
                 'access_token' => $user_data['User']['access_token'],
                 'content' => 'Because ' . $reason . ', I want to take ' . $duration . ' day off on ' . $dates
@@ -134,11 +134,12 @@ class RequestController extends AppController
                 $res = $this->sendChatWork($data);
             }
 
-            $this->response->header('Location',"/users/home");
+            $this->response->header('Location',"/chatwork/users/home");
         } else {
-            $this->response->header('Location',"/request");
+            $this->response->header('Location',"/chatwork/request");
         }
     }
+
     public function addLeave($user_data,$leave_data){
         if($leave_data['reason'] == 'Other'){
             $reason = $leave_data['reasonOther'];
@@ -206,10 +207,104 @@ class RequestController extends AppController
                 $res = $this->sendChatWork($data);
             }
 
-            $this->response->header('Location',"/users/home");
+            $this->response->header('Location',"/chatwork/users/home");
         } else {
-            $this->response->header('Location',"/request");
+            $this->response->header('Location',"/chatwork/request");
         }
+    }
+
+    private function sendChatWork($data)
+    {
+        $this->autoRender = false;
+        //room_id, accesstoken, 
+        $room_id = ROOM_ID;
+        $access_token = $data['access_token'];
+        $content = $data['content'];
+
+        $method = $data['method'];
+        $users = $data['users'];        
+
+        $url = 'https://api.chatwork.com/v2/rooms/'.$room_id.'/messages';
+
+        $header = array(
+            'Authorization: Bearer '.$access_token
+        );
+
+        $message = '';
+
+        // 1: basic
+        // 2: to
+        // 3: reply
+        switch ($method) {
+            case '1':
+                $message = $message . $content;
+                break;
+
+            case '2':
+                foreach ($users as $key => $user) {
+                    $message = $message . '[To:' . $user['chatwork_id'] . '] ' . $user['chatwork_name'] . PHP_EOL;
+                }
+                $message = $message . $content;
+                break;
+
+            case '3':
+                foreach ($users as $key => $user) {
+                    $message = $message . '[rp aid=' . $user['chatwork_id'] . '] ' . $user['chatwork_name'] . PHP_EOL;
+                }
+                $message = $message . $content;
+                break;
+            
+            default:
+                $message = $message . $content;
+                break;
+        }
+
+        $data = array(
+            'body' => $message
+        );
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_POST,TRUE);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+        return json_decode($response);
+    }
+
+    // by refresh token
+    private function getAccessToken($refreshToken = null)
+    {
+        $this->autoRender = false;
+
+        $url = 'https://oauth.chatwork.com/token';
+        $data = array(
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+            'scope' => 'users.all:read rooms.all:read_write'
+        );
+
+        $header = array(
+            'Authorization: Basic '.base64_encode(OAUTH2_CLIENT_ID.':'.OAUTH2_CLIENT_SECRET)
+        );
+
+        $data = http_build_query($data, '', '&');
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_POST,TRUE);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER,$header);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $access_token = json_decode($response)->access_token;
+        return $access_token;
     }
 }
 ?>
