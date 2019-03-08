@@ -40,11 +40,9 @@ class RequestController extends AppController
                         'User.email' => $email
                     )
                 ));
-            $this->log($_POST);
             if(!empty($_POST['check']) && $_POST['check'] == 'Off'){
                 $this->addOff($user_data, $_POST);
             }else{
-                $this->log("leave");
                 $this->addLeave($user_data, $_POST);
             }
         }

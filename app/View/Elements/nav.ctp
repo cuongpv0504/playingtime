@@ -23,16 +23,23 @@
             </li>
 
         </ul>
-        <form class="form-inline">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search"  aria-label="Recipient's username" aria-describedby="button-addon2">
-                <div class="input-group-append">
-                    <button class="btn btn-outline-primary" type="button" id="button-addon2">
-                        <i class="fa fa-search"></i>
-                    </button>
+        <?php
+            if($user_data['role'] == 1 || $user_data['role'] == 2){
+            ?>
+            <form class="form-inline" method="post" action="/users/search">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="search"  aria-label="Recipient's username" aria-describedby="button-addon2">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="submit" id="button-addon2">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-        </form>
+            </form>
+            <?php
+                }
+            ?>
+
 
         <ul class="navbar-nav ">
             <li class="nav-item">
@@ -52,8 +59,19 @@
 
                         <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>-->
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/users/profile">Profile</a>
-                        <a class="dropdown-item" href="/chatwork/users/logout">Logout</a>
+                        <?php
+                            if($user_data['role'] == 1){
+                            ?>
+                                <a class="dropdown-item" href="/users/profileAdmin">Profile</a>
+                            <?php
+                            }else{
+                            ?>
+                                <a class="dropdown-item" href="/users/profile">Profile</a>
+                            <?php
+                            }
+                        ?>
+
+                        <a class="dropdown-item" href="/users/logout">Logout</a>
                     </div>
                 </div>
             </li>

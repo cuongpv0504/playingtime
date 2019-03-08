@@ -31,6 +31,7 @@ App::uses('Controller', 'Controller');
  * @link		https://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+    const WAITING = 2;
     public $uses = array('User','Leave','Off','Comment','Type');
     
 	public function beforeFilter() {
@@ -49,18 +50,32 @@ class AppController extends Controller {
 		    		'User.email' => $_SESSION['email']
 		    	)
 		    ));
-            $countOff = $this->Off->find('count',array(
-                'conditions' => array(
-                    'Off.user_id' => $data['User']['id'],
-                    'Off.notice' => 1
-                )
-            ));
-            $countLeave = $this->Leave->find('count',array(
-                'conditions' => array(
-                    'Leave.user_id' => $data['User']['id'],
-                    'Leave.notice' => 1
-                )
-            ));
+            if($data['User']['role'] == 1){
+                $countOff = $this->Off->find('count',array(
+                    'conditions' => array(
+                        'Off.status' => self::WAITING
+                    )
+                ));
+                $countLeave = $this->Leave->find('count',array(
+                    'conditions' => array(
+                        'Leave.status' => self::WAITING
+                    )
+                ));
+            }else{
+                $countOff = $this->Off->find('count',array(
+                    'conditions' => array(
+                        'Off.user_id' => $data['User']['id'],
+                        'Off.notice' => 1
+                    )
+                ));
+                $countLeave = $this->Leave->find('count',array(
+                    'conditions' => array(
+                        'Leave.user_id' => $data['User']['id'],
+                        'Leave.notice' => 1
+                    )
+                ));
+            }
+
             $data['User']['notice'] = $countOff + $countLeave;
 		    $this->set('user_data',$data['User']);
         }	    

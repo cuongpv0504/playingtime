@@ -78,9 +78,6 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-      // $(".card").click(function(){
-      //   window.location.replace("http://192.168.0.22/chatwork");
-      // });
         $('.status').each(function(){
             if ($(this).attr("data") == 'WAITING') {
                 // $(this).css("background-color","#fcf8e3");
@@ -95,12 +92,6 @@
                 $(this).find(".colorStatus").addClass("text-danger");
             }
         });
-    });
-    $(window).scroll(function() {
-      if($(window).scrollTop() == $(document).height() - $(window).height()) {
-        // ajax call get data from server and append to the div
-        alert('End page');
-      }
     });
 </script>
 
