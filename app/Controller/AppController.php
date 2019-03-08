@@ -49,7 +49,19 @@ class AppController extends Controller {
 		    		'User.email' => $_SESSION['email']
 		    	)
 		    ));
-
+            $countOff = $this->Off->find('count',array(
+                'conditions' => array(
+                    'Off.user_id' => $data['User']['id'],
+                    'Off.notice' => 1
+                )
+            ));
+            $countLeave = $this->Leave->find('count',array(
+                'conditions' => array(
+                    'Leave.user_id' => $data['User']['id'],
+                    'Leave.notice' => 1
+                )
+            ));
+            $data['User']['notice'] = $countOff + $countLeave;
 		    $this->set('user_data',$data['User']);
         }	    
 	}

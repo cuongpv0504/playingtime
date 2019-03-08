@@ -1671,7 +1671,7 @@ class ApiController extends AppController
 					'time' => strtotime($value['Leave']['create_at']),
 					'user_name' => $value['User']['name'],
 					'info' => 'leave',
-					'approve_time' => $value['Off']['approve_time'],
+					'approve_time' => $value['Leave']['approve_time'],
 					'check' => $check,
 					'author' => array(
 						'name' =>  $value['User']['name'],

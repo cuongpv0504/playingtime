@@ -31,19 +31,36 @@ class UsersController extends AppController
 	    parent::beforeFilter();
 	}
 
+    private function getRole() {
+        $email = $_SESSION['email'];
+
+        $check = $this->User->find('first',array(
+            'conditions' => array(
+                'email' => $email
+            )
+        ));
+
+        if (!empty($check)) {
+            return $check['User']['role'];
+        }
+
+        return 0;
+    }
+
 	public function login()
 	{
-		$provider = new ChatWorkProvider(
-		    OAUTH2_CLIENT_ID,
-		    OAUTH2_CLIENT_SECRET,
-		    OAUTH2_REDIRECT_URI2
-		);
-
-		$url = $provider->getAuthorizationUrl([
-		    'scope' => ['users.all:read', 'rooms.all:read_write']
-		]);
-
-		$this->set('login_url',$url);
+//		$provider = new ChatWorkProvider(
+//		    OAUTH2_CLIENT_ID,
+//		    OAUTH2_CLIENT_SECRET,
+//		    OAUTH2_REDIRECT_URI2
+//		);
+//
+//		$url = $provider->getAuthorizationUrl([
+//		    'scope' => ['users.all:read', 'rooms.all:read_write']
+//		]);
+//
+//		$this->set('login_url',$url);
+        $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
 	}
 
 	public function logout()
@@ -307,7 +324,7 @@ class UsersController extends AppController
             'first',
             array(
                 'conditions' => array(
-                    'email' => $_SESSION['email']
+                    'email' => $_SESSION['email'],
                 )
             )
         );
@@ -407,6 +424,181 @@ class UsersController extends AppController
                 $this->response->header('Location',"/chatwork/users/profile");
                 $this->Flash->set('save success');
             }
+        }
+    }
+
+    public function notice(){
+        if ($this->getRole() == self::ADMIN) {
+
+            $offData = $this->Off->find('all',array(
+                'conditions' => array(
+                    'Off.status' => self::WAITING
+                )
+            ));
+
+            $leaveData = $this->Leave->find('all',array(
+                'conditions' => array(
+                    'Leave.status' => self::WAITING
+                )
+            ));
+
+            $noticeData = array();
+
+            foreach ($offData as $key => $value) {
+                $noticeData[] = array(
+                    'id' => $value['Off']['id'],
+                    'user_id' => $value['Off']['user_id'],
+                    'duration' => $value['Off']['duration'],
+                    'dates' => $value['Off']['dates'],
+                    'create_at' => $value['Off']['create_at'],
+                    'approve_time' => $value['Off']['approve_time'],
+                    'reason' => $value['Off']['reason'],
+                    'emotion' => $value['Off']['emotion'],
+                    'type' => $value['Type']['description'],
+                    'day_left' => $value['Off']['day_left'],
+                    'status' => $value['Status']['status'],
+                    'time' => strtotime($value['Off']['create_at']),
+                    'user_name' => $value['User']['name'],
+                    'info' => 'off',
+                    'approve_time' => $value['Off']['approve_time'],
+                    'author' => array(
+                        'name' =>  $value['User']['name'],
+                        'avatar' => $value['User']['avatar']
+                    )
+                );
+            }
+
+            foreach ($leaveData as $key => $value) {
+                $check = 'leave';
+
+                if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+                    $check = 'leaving soon';
+                }
+
+                if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
+                    $check = 'coming late';
+                }
+
+                $noticeData[] = array(
+                    'id' => $value['Leave']['id'],
+                    'user_id' => $value['Leave']['user_id'],
+                    'start' => $value['Leave']['start'],
+                    'end' => $value['Leave']['end'],
+                    'date' => $value['Leave']['date'],
+                    'create_at' => $value['Leave']['create_at'],
+                    'approve_time' => $value['Leave']['approve_time'],
+                    'reason' => $value['Leave']['reason'],
+                    'emotion' => $value['Leave']['emotion'],
+                    'status' => $value['Status']['status'],
+                    'time' => strtotime($value['Leave']['create_at']),
+                    'user_name' => $value['User']['name'],
+                    'info' => 'leave',
+                    'approve_time' => $value['Leave']['approve_time'],
+                    'check' => $check,
+                    'author' => array(
+                        'name' =>  $value['User']['name'],
+                        'avatar' => $value['User']['avatar']
+                    )
+                );
+            }
+
+            function build_sorter($key) {
+                return function ($a, $b) use ($key) {
+                    return $b[$key] - $a[$key];
+                };
+            }
+
+            usort($noticeData, build_sorter('time'));
+            $this->set('noticeAdmin', $noticeData);
+        } else {
+            $offData = $this->Off->find('all',array(
+                'conditions' => array(
+                    'Off.notice' => '1',
+                    'User.email' => $_SESSION['email']
+                )
+            ));
+
+            $leaveData = $this->Leave->find('all',array(
+                'conditions' => array(
+                    'Leave.notice' => '1',
+                    'User.email' => $_SESSION['email']
+                )
+            ));
+
+            $noticeData = array();
+
+            foreach ($offData as $key => $value) {
+                $post_at = $this->timePost($value['Off']['create_at']);
+                $noticeData[] = array(
+                    'id' => $value['Off']['id'],
+                    'user_id' => $value['Off']['user_id'],
+                    'duration' => $value['Off']['duration'],
+                    'dates' => $value['Off']['dates'],
+                    'create_at' => $value['Off']['create_at'],
+                    'reason' => $value['Off']['reason'],
+                    'emotion' => $value['Off']['emotion'],
+                    'type' => $value['Type']['description'],
+                    'day_left' => $value['Off']['day_left'],
+                    'status' => $value['Status']['status'],
+                    'post_at' => $post_at,
+                    'notice' => $value['Off']['notice'],
+                    'time' => strtotime($value['Off']['create_at']),
+                    'user_name' => $value['User']['name'],
+                    'info' => 'off',
+                    'approve_time' => $value['Off']['approve_time'],
+                    'author' => array(
+                        'name' =>  $value['User']['name'],
+                        'avatar' => $value['User']['avatar'],
+                        'email' =>  $value['User']['email'],
+                    )
+                );
+            }
+
+            foreach ($leaveData as $key => $value) {
+                $check = 'leave';
+
+                if (strtotime($value['Leave']['end']) == strtotime('17:30:00')) {
+                    $check = 'leaving soon';
+                }
+
+                if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
+                    $check = 'coming late';
+                }
+                $post_at = $this->timePost($value['Leave']['create_at']);
+                $noticeData[] = array(
+                    'id' => $value['Leave']['id'],
+                    'user_id' => $value['Leave']['user_id'],
+                    'start' => $value['Leave']['start'],
+                    'end' => $value['Leave']['end'],
+                    'date' => $value['Leave']['date'],
+                    'create_at' => $value['Leave']['create_at'],
+                    'reason' => $value['Leave']['reason'],
+                    'emotion' => $value['Leave']['emotion'],
+                    'status' => $value['Status']['status'],
+                    'post_at' => $post_at,
+                    'notice' => $value['Leave']['notice'],
+                    'time' => strtotime($value['Leave']['create_at']),
+                    'user_name' => $value['User']['name'],
+                    'info' => 'leave',
+                    'approve_time' => $value['Leave']['approve_time'],
+                    'check' => $check,
+                    'author' => array(
+                        'name' =>  $value['User']['name'],
+                        'avatar' => $value['User']['avatar'],
+                        'email' =>  $value['User']['email'],
+                    )
+                );
+            }
+
+            function build_sorter($key) {
+                return function ($a, $b) use ($key) {
+                    return $b[$key] - $a[$key];
+                };
+            }
+
+            usort($noticeData, build_sorter('time'));
+            $this->log("1");
+            return  $this->set('noticeUser', $noticeData);
         }
     }
 
