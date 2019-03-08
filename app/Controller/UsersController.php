@@ -27,8 +27,38 @@ class UsersController extends AppController
 	const TEST_TOKEN = 'b26008724e3f7cfc392bfbd4d9707e5c';
 	const TEST_ROOM = '132078386';
 	const TEST_ID = '2503016'; // cuong chatwork id
+
 	public function beforeFilter() {
-	    parent::beforeFilter();
+	    if (!session_id()) {
+            session_start();
+        }
+
+        if ($this->action != 'login' && $this->action != 'callback')
+        {
+            if (empty($_SESSION['email'])) {
+            	$this->redirect('/users/login');
+            }
+
+            $data = $this->User->find('first',array(
+		    	'conditions' => array(
+		    		'User.email' => $_SESSION['email']
+		    	)
+		    ));
+            $countOff = $this->Off->find('count',array(
+                'conditions' => array(
+                    'Off.user_id' => $data['User']['id'],
+                    'Off.notice' => 1
+                )
+            ));
+            $countLeave = $this->Leave->find('count',array(
+                'conditions' => array(
+                    'Leave.user_id' => $data['User']['id'],
+                    'Leave.notice' => 1
+                )
+            ));
+            $data['User']['notice'] = $countOff + $countLeave;
+		    $this->set('user_data',$data['User']);
+        }	    
 	}
 
     private function getRole() {
@@ -49,18 +79,18 @@ class UsersController extends AppController
 
 	public function login()
 	{
-//		$provider = new ChatWorkProvider(
-//		    OAUTH2_CLIENT_ID,
-//		    OAUTH2_CLIENT_SECRET,
-//		    OAUTH2_REDIRECT_URI2
-//		);
-//
-//		$url = $provider->getAuthorizationUrl([
-//		    'scope' => ['users.all:read', 'rooms.all:read_write']
-//		]);
-//
-//		$this->set('login_url',$url);
-        $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
+		$provider = new ChatWorkProvider(
+		    OAUTH2_CLIENT_ID,
+		    OAUTH2_CLIENT_SECRET,
+		    OAUTH2_REDIRECT_URI2
+		);
+
+		$url = $provider->getAuthorizationUrl([
+		    'scope' => ['users.all:read', 'rooms.all:read_write']
+		]);
+
+		$this->set('login_url',$url);
+        // $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
 	}
 
 	public function logout()
@@ -524,6 +554,21 @@ class UsersController extends AppController
                     'User.email' => $_SESSION['email']
                 )
             ));
+            $this->set('notice','0');
+
+            foreach ($offData as $key => $value) {
+            	$this->Off->id = $value['Off']['id'];
+            	$this->Off->save(array(
+            		'notice' => '0'
+            	));
+            }
+
+            foreach ($leaveData as $key => $value) {
+            	$this->Leave->id = $value['Off']['id'];
+            	$this->Leave->save(array(
+            		'notice' => '0'
+            	));
+            }
 
             $noticeData = array();
 

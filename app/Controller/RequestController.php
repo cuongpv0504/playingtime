@@ -28,6 +28,39 @@ class RequestController extends AppController
     const TEST_ROOM = '132078386';
     const TEST_ID = '2503016'; // cuong chatwork id
 
+    public function beforeFilter() {
+        if (!session_id()) {
+            session_start();
+        }
+
+        if ($this->action != 'login' && $this->action != 'callback')
+        {
+            if (empty($_SESSION['email'])) {
+                $this->redirect('/users/login');
+            }
+
+            $data = $this->User->find('first',array(
+                'conditions' => array(
+                    'User.email' => $_SESSION['email']
+                )
+            ));
+            $countOff = $this->Off->find('count',array(
+                'conditions' => array(
+                    'Off.user_id' => $data['User']['id'],
+                    'Off.notice' => 1
+                )
+            ));
+            $countLeave = $this->Leave->find('count',array(
+                'conditions' => array(
+                    'Leave.user_id' => $data['User']['id'],
+                    'Leave.notice' => 1
+                )
+            ));
+            $data['User']['notice'] = $countOff + $countLeave;
+            $this->set('user_data',$data['User']);
+        }       
+    }
+
     public function index(){
         $typeData = $this->Type->find('all');
         $this->set('typeData', $typeData);
@@ -218,8 +251,8 @@ class RequestController extends AppController
     public function delete($info, $id){
         $this->autoRender = false;
 
-        // $email = $_SESSION['email'];
-        $email = 'huandv@tmh-techlab.vn';
+        $email = $_SESSION['email'];
+        // $email = 'huandv@tmh-techlab.vn';
 
         //get user_data
         $data = $this->User->find(

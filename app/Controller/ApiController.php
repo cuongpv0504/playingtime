@@ -451,15 +451,16 @@ class ApiController extends AppController
 			));
 		}
 
-		if ($check['Leave']['status'] != self::WAITING) {
-			$this->response->statusCode(406);
-			return json_encode(array(
-				'error' => 'Your request has been processed. You can not change request now.'
-			));
-		}
+		if (strtotime($check['Leave']['date']) <= strtotime(date('Y-m-d'))) {
+            $this->response->statusCode(406);
+            return json_encode(array(
+                'error' => 'Can not delete. The day has gone.'
+            ));
+        }
 
 		$save = array(
-			'user_id' => $user_id
+			'user_id' => $user_id,
+			'status' => self::WAITING
 		);
 
 		if (isset($_POST['start'])) {
@@ -525,15 +526,26 @@ class ApiController extends AppController
 			));
 		}
 
-		if ($check['Off']['status'] != self::WAITING) {
-			$this->response->statusCode(406);
-			return json_encode(array(
-				'error' => 'Your request has been processed. You can not change request now.'
-			));
-		}
+		$pattern = '/[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])/';
+        preg_match_all($pattern,$check['Off']['dates'],$out,PREG_PATTERN_ORDER);
+
+        $time = true;
+        foreach ($out['0'] as $key => $value) {
+            if (strtotime($value) <= strtotime(date('Y-m-d'))) {
+                $time = false;
+            }
+        }
+        
+        if (!$time) {
+            $this->response->statusCode(406);
+            return json_encode(array(
+                'error' => 'The day has gone, can not delete'
+            ));
+        }
 
 		$save = array(
-			'user_id' => $id
+			'user_id' => $id,
+			'status' => self::WAITING
 		);
 
 		if (isset($_POST['duration'])) {
@@ -1233,6 +1245,23 @@ class ApiController extends AppController
 				));
 			}
 
+			$pattern = '/[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])/';
+            preg_match_all($pattern,$dates,$out,PREG_PATTERN_ORDER);
+
+            $time = true;
+            foreach ($out['0'] as $key => $value) {
+                if (strtotime($value) <= strtotime(date('Y-m-d'))) {
+                    $time = false;
+                }
+            }
+            
+            if (!$time) {
+                $this->response->statusCode(406);
+                return json_encode(array(
+                    'error' => 'The day has gone, can not delete'
+                ));
+            }
+
 			//send chatwork
 			$chatwork_data = array(
 				'access_token' => $data['User']['access_token'],
@@ -1320,6 +1349,13 @@ class ApiController extends AppController
 					'error' => 'You dont have permission'
 				));
 			}
+
+			if (strtotime($check['Leave']['date']) <= strtotime(date('Y-m-d'))) {
+                $this->response->statusCode(406);
+                return json_encode(array(
+                    'error' => 'Can not delete. The day has gone.'
+                ));
+            }
 
 			//send chatwork
 			$chatwork_data = array(

@@ -7,14 +7,14 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="/users/home">
+                <a class="nav-link" href="/chatwork/users/home">
                     <i class="fa fa-home"></i>
                     Home
                     <span class="sr-only">(current)</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/request">
+                <a class="nav-link" href="/chatwork/request">
                     <i class="fa fa-envelope-o">
                         <span class="badge badge-danger">11</span>
                     </i>
@@ -36,9 +36,13 @@
 
         <ul class="navbar-nav ">
             <li class="nav-item">
-                <a class="nav-link" href="/users/notice">
+                <a class="nav-link" href="/chatwork/users/notice">
                     <i class="fa fa-bell">
-                        <span class="badge badge-info"><?php echo $user_data['notice'];?></span>
+                        <span class="badge badge-info"><?php if (isset($notice)) {
+                            echo $notice;
+                        } else {
+                            echo $user_data['notice'];
+                        }?></span>
                     </i>
                     Notice
                 </a>
@@ -52,7 +56,7 @@
 
                         <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <span class="caret"></span></a>-->
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/users/profile">Profile</a>
+                        <a class="dropdown-item" href="/chatwork/users/profile">Profile</a>
                         <a class="dropdown-item" href="/chatwork/users/logout">Logout</a>
                     </div>
                 </div>
