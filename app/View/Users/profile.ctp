@@ -107,41 +107,43 @@
                 </div>
                 <?php
 				        echo $this->Form->end(array(
-                'label' => 'Save profile'
-                ));
+                            'label' => 'Save profile'
+                        ));
                 ?>
             </div>
+            <?php
+                if($user_data['role'] == 2){
+                ?>
+                    <div class="card gedf-card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="ml-2">
+                                        <div class="h5 m-0">List users</div>
+                                        <!--<div class="h7 text-muted">Like to work fr different business</div>-->
+                                    </div>
+                                </div>
+                            </div>
 
-            <div class="card gedf-card">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="ml-2">
-                                <div class="h5 m-0">Worked with many domain</div>
-                                <div class="h7 text-muted">Like to work fr different business</div>
+                        </div>
+                        <div class="col-md-12 listfriend">
+                            <div class="memberblock">
+                            <?php
+                                foreach($userData['listUser'] as $list){
+                                ?>
+                                <a href="/users/profile/<?php echo $list['User']['id']?>" class="member"> <img src="<?php echo $list['User']['avatar']?>" alt="">
+                                    <div class="memmbername"><?php echo $list['User']['name']?></div>
+                                </a>
+                                <?php
+                                }
+                            ?>
                             </div>
                         </div>
+                        <div class="clearfix"></div>
                     </div>
-
-                </div>
-                <div class="col-md-12 listfriend">
-                    <div class="memberblock"> <a href="" class="member"> <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="">
-                        <div class="memmbername">Ajay Sriram</div>
-                    </a> <a href="" class="member"> <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
-                        <div class="memmbername">Rajesh Sriram</div>
-                    </a> <a href="" class="member"> <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
-                        <div class="memmbername">Manish Sriram</div>
-                    </a> <a href="" class="member"> <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
-                        <div class="memmbername">Chandra Amin</div>
-                    </a> <a href="" class="member"> <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
-                        <div class="memmbername">John Sriram</div>
-                    </a> <a href="" class="member"> <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="">
-                        <div class="memmbername">Lincoln Sriram</div>
-                    </a> </div>
-                </div>
-                <div class="clearfix"></div>
-            </div>
-
+                <?php
+                }
+            ?>
         </div>
         <div class="col-md-8 col-sm-12 pull-left posttimeline">
             <ul class="nav nav-tabs" role="tablist">
@@ -478,12 +480,6 @@
                 $(this).find(".colorStatus").addClass("text-danger");
             }
         });
-    });
-    $(window).scroll(function() {
-        if($(window).scrollTop() == $(document).height() - $(window).height()) {
-            // ajax call get data from server and append to the div
-            alert('End page');
-        }
     });
 </script>
 <style>

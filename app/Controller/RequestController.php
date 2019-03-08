@@ -27,6 +27,7 @@ class RequestController extends AppController
     const TEST_TOKEN = 'b26008724e3f7cfc392bfbd4d9707e5c';
     const TEST_ROOM = '132078386';
     const TEST_ID = '2503016'; // cuong chatwork id
+    const WAITING = 2;
 
     public function beforeFilter() {
         if (!session_id()) {
@@ -44,18 +45,32 @@ class RequestController extends AppController
                     'User.email' => $_SESSION['email']
                 )
             ));
-            $countOff = $this->Off->find('count',array(
-                'conditions' => array(
-                    'Off.user_id' => $data['User']['id'],
-                    'Off.notice' => 1
-                )
-            ));
-            $countLeave = $this->Leave->find('count',array(
-                'conditions' => array(
-                    'Leave.user_id' => $data['User']['id'],
-                    'Leave.notice' => 1
-                )
-            ));
+            if($data['User']['role'] == 1){
+                $countOff = $this->Off->find('count',array(
+                    'conditions' => array(
+                        'Off.status' => self::WAITING
+                    )
+                ));
+                $countLeave = $this->Leave->find('count',array(
+                    'conditions' => array(
+                        'Leave.status' => self::WAITING
+                    )
+                ));
+            }else{
+                $countOff = $this->Off->find('count',array(
+                    'conditions' => array(
+                        'Off.user_id' => $data['User']['id'],
+                        'Off.notice' => 1
+                    )
+                ));
+                $countLeave = $this->Leave->find('count',array(
+                    'conditions' => array(
+                        'Leave.user_id' => $data['User']['id'],
+                        'Leave.notice' => 1
+                    )
+                ));
+            }
+
             $data['User']['notice'] = $countOff + $countLeave;
             $this->set('user_data',$data['User']);
         }       
@@ -73,11 +88,9 @@ class RequestController extends AppController
                         'User.email' => $email
                     )
                 ));
-            $this->log($_POST);
             if(!empty($_POST['check']) && $_POST['check'] == 'Off'){
                 $this->addOff($user_data, $_POST);
             }else{
-                $this->log("leave");
                 $this->addLeave($user_data, $_POST);
             }
         }

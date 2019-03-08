@@ -28,6 +28,8 @@ class UsersController extends AppController
 	const TEST_ROOM = '132078386';
 	const TEST_ID = '2503016'; // cuong chatwork id
 
+	const WAITING = 2;
+
 	public function beforeFilter() {
 	    if (!session_id()) {
             session_start();
@@ -44,18 +46,32 @@ class UsersController extends AppController
 		    		'User.email' => $_SESSION['email']
 		    	)
 		    ));
-            $countOff = $this->Off->find('count',array(
-                'conditions' => array(
-                    'Off.user_id' => $data['User']['id'],
-                    'Off.notice' => 1
-                )
-            ));
-            $countLeave = $this->Leave->find('count',array(
-                'conditions' => array(
-                    'Leave.user_id' => $data['User']['id'],
-                    'Leave.notice' => 1
-                )
-            ));
+            if($data['User']['role'] == 1){
+                $countOff = $this->Off->find('count',array(
+                    'conditions' => array(
+                        'Off.status' => self::WAITING
+                    )
+                ));
+                $countLeave = $this->Leave->find('count',array(
+                    'conditions' => array(
+                        'Leave.status' => self::WAITING
+                    )
+                ));
+            }else{
+                $countOff = $this->Off->find('count',array(
+                    'conditions' => array(
+                        'Off.user_id' => $data['User']['id'],
+                        'Off.notice' => 1
+                    )
+                ));
+                $countLeave = $this->Leave->find('count',array(
+                    'conditions' => array(
+                        'Leave.user_id' => $data['User']['id'],
+                        'Leave.notice' => 1
+                    )
+                ));
+            }
+
             $data['User']['notice'] = $countOff + $countLeave;
 		    $this->set('user_data',$data['User']);
         }	    
@@ -347,18 +363,36 @@ class UsersController extends AppController
 		}
 	}
 
-    public function profile()
+    public function profile($idUser = null)
     {
         //data profile
-        $userData = $this->User->find(
-            'first',
+        if(isset($idUser) && !empty($idUser)){
+            $userData = $this->User->find(
+                'first',
+                array(
+                    'conditions' => array(
+                        'User.id' => $idUser,
+                    )
+                )
+            );
+        }else{
+            $userData = $this->User->find(
+                'first',
+                array(
+                    'conditions' => array(
+                        'email' => $_SESSION['email'],
+                    )
+                )
+            );
+        }
+        $userData['listUser'] = $this->User->find(
+            'all',
             array(
                 'conditions' => array(
-                    'email' => $_SESSION['email'],
+                    'User.role !=' => '1',
                 )
             )
         );
-
         //data history off
         $offData = $this->Off->find('all',array(
             'conditions' => array(
@@ -396,8 +430,9 @@ class UsersController extends AppController
                 return $b[$key] - $a[$key];
             };
         }
-
-        usort($userData['Off'], build_sorter('time'));
+        if(!empty($userData['Off'])){
+            usort($userData['Off'], build_sorter('time'));
+        }
         //data history leave
         $leaveData = $this->Leave->find('all',array(
             'conditions' => array(
@@ -444,9 +479,37 @@ class UsersController extends AppController
                 return $b[$key] - $a[$key];
             };
         }
+        if(!empty($userData['Leave'])){
+            usort($userData['Leave'], buildSorter('time'));
+        }
+        $this->set('userData', $userData);
 
-        usort($userData['Leave'], buildSorter('time'));
-        $this->log($userData);
+        if($this->request->is("post")){
+            if($this->User->save($this->request->data)){
+                $this->response->header('Location',"/chatwork/users/profile");
+                $this->Flash->set('save success');
+            }
+        }
+    }
+
+    public function profileAdmin(){
+        //data profile
+        $userData = $this->User->find(
+            'first',
+            array(
+                'conditions' => array(
+                    'email' => $_SESSION['email'],
+                )
+            )
+        );
+        $userData['listUser'] = $this->User->find(
+            'all',
+            array(
+                'conditions' => array(
+                    'User.role !=' => '1',
+                )
+            )
+        );
         $this->set('userData', $userData);
 
         if($this->request->is("post")){
@@ -475,6 +538,7 @@ class UsersController extends AppController
             $noticeData = array();
 
             foreach ($offData as $key => $value) {
+                $post_at = $this->timePost($value['Off']['create_at']);
                 $noticeData[] = array(
                     'id' => $value['Off']['id'],
                     'user_id' => $value['Off']['user_id'],
@@ -487,13 +551,16 @@ class UsersController extends AppController
                     'type' => $value['Type']['description'],
                     'day_left' => $value['Off']['day_left'],
                     'status' => $value['Status']['status'],
+                    'post_at' => $post_at,
                     'time' => strtotime($value['Off']['create_at']),
                     'user_name' => $value['User']['name'],
                     'info' => 'off',
                     'approve_time' => $value['Off']['approve_time'],
+                    'role' => 1,
                     'author' => array(
                         'name' =>  $value['User']['name'],
-                        'avatar' => $value['User']['avatar']
+                        'email' =>  $value['User']['email'],
+                        'avatar' => $value['User']['avatar'],
                     )
                 );
             }
@@ -508,7 +575,7 @@ class UsersController extends AppController
                 if (strtotime($value['Leave']['start']) == strtotime('08:30:00')) {
                     $check = 'coming late';
                 }
-
+                $post_at = $this->timePost($value['Leave']['create_at']);
                 $noticeData[] = array(
                     'id' => $value['Leave']['id'],
                     'user_id' => $value['Leave']['user_id'],
@@ -520,13 +587,16 @@ class UsersController extends AppController
                     'reason' => $value['Leave']['reason'],
                     'emotion' => $value['Leave']['emotion'],
                     'status' => $value['Status']['status'],
+                    'post_at' => $post_at,
                     'time' => strtotime($value['Leave']['create_at']),
                     'user_name' => $value['User']['name'],
                     'info' => 'leave',
                     'approve_time' => $value['Leave']['approve_time'],
                     'check' => $check,
+                    'role' => 1,
                     'author' => array(
                         'name' =>  $value['User']['name'],
+                        'email' =>  $value['User']['email'],
                         'avatar' => $value['User']['avatar']
                     )
                 );
@@ -539,7 +609,7 @@ class UsersController extends AppController
             }
 
             usort($noticeData, build_sorter('time'));
-            $this->set('noticeAdmin', $noticeData);
+            $this->set('noticeData', $noticeData);
         } else {
             $offData = $this->Off->find('all',array(
                 'conditions' => array(
@@ -594,7 +664,7 @@ class UsersController extends AppController
                     'author' => array(
                         'name' =>  $value['User']['name'],
                         'avatar' => $value['User']['avatar'],
-                        'email' =>  $value['User']['email'],
+                        'email' =>  $value['User']['email']
                     )
                 );
             }
@@ -642,8 +712,22 @@ class UsersController extends AppController
             }
 
             usort($noticeData, build_sorter('time'));
-            $this->log("1");
-            return  $this->set('noticeUser', $noticeData);
+            return  $this->set('noticeData', $noticeData);
+        }
+    }
+
+    public function search(){
+        $this->log("thao");
+        if(isset($_POST)){
+            $query = $_POST['search'];
+
+            $data = $this->User->find('all',array(
+                'conditions' => array(
+                    'User.name LIKE' => '%'.$query.'%'
+                )
+            ));
+
+            $this->set('searchData', $data);
         }
     }
 

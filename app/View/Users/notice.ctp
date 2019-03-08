@@ -8,7 +8,7 @@ echo $this->element('nav');
         <div class="col-md-6 offset-md-3 gedf-main">
 
             <?php
-                foreach ($noticeUser as $key => $value) {
+                foreach ($noticeData as $key => $value) {
                     if ($value['info'] == 'off') {
                         $status = 'off';
                         $time = 'on ' . $value['dates'];
@@ -43,9 +43,19 @@ echo $this->element('nav');
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
                                     <div class="h6 dropdown-header">Configuration</div>
-                                    <a class="dropdown-item" href="#">Save</a>
-                                    <a class="dropdown-item" href="#">Hide</a>
-                                    <a class="dropdown-item" href="#">Report</a>
+                                    <?php
+                                        if(isset($value['role']) && $value['role'] == 1){
+                                        ?>
+                                            <a class="dropdown-item" href="#">Accept</a>
+                                            <a class="dropdown-item" href="#">Deny</a>
+                                        <?php
+                                        }else{
+                                        ?>
+                                            <a class="dropdown-item" href="#">Edit</a>
+                                            <a class="dropdown-item" href="#">Delete</a>
+                                        <?php
+                                        }
+                                    ?>
                                 </div>
                             </div>
                         </div>
