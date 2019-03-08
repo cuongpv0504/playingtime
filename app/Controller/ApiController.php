@@ -107,9 +107,9 @@ class ApiController extends AppController
 
 		$this->User->id = $id;
 		if ($this->User->save($save)) {
-			return '1';
+			return json_encode('1');
 		} else {
-			return '0';
+			return json_encode('0');
 		}
 	}
 
@@ -1305,6 +1305,13 @@ class ApiController extends AppController
 					'Leave.user_id' => $user_id
 				)
 			));
+
+			if (strtotime($check['Leave']['date']) <= strtotime(date('Y-m-d'))) {
+				$this->response->statusCode(406);
+				return json_encode(array(
+					'error' => 'Can not delete. The day has gone.'
+				));
+			}
 
 			//check owned
 			if (empty($check)) {
