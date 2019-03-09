@@ -29,7 +29,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="mr-2">
-                                <img class="rounded-circle" width="45" src="<?php echo $value['author']['avatar'] ?>" alt="">
+                                <a href="/users/profile/<?php echo $value['user_id'] ?>"><img class="rounded-circle" width="45" src="<?php echo $value['author']['avatar'] ?>" ></a>
                             </div>
                             <div class="ml-2">
                                 <div class="h5 m-0"><?php echo $value['user_name'] ?><i style="font-size: 14px;"> - feeling <?php echo $value['emotion']?></i></div>
@@ -53,11 +53,17 @@
                                              ?>
                                         <?php
                                          }else{
+                                            if($value['info'] == "off"){
+                                            ?>
+                                                <a class="dropdown-item edit" href="/request/editOff/<?php echo $value['id'] ?>">Edit</a>
+                                                <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
+                                            <?php
+                                            }elseif($value['info'] == 'leave'){
                                          ?>
-                                            <a class="dropdown-item edit" href="#">Edit</a>
-                                            <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
+                                                <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
+                                                <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
                                         <?php
-                                        }
+                                        }}
                                     ?>
                                 </div>
                             </div>

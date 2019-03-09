@@ -1,5 +1,5 @@
 <nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Yasumi</a>
+    <?php echo $this->Html->image('logo-new.png',array('class'=>'logo')) ?>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -7,16 +7,15 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="/chatwork/users/home">
+                <a class="nav-link" href="/users/home">
                     <i class="fa fa-home"></i>
                     Home
                     <span class="sr-only">(current)</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/chatwork/request">
+                <a class="nav-link" href="/request">
                     <i class="fa fa-envelope-o">
-                        <span class="badge badge-danger">11</span>
                     </i>
                     Add Request
                 </a>
@@ -43,7 +42,7 @@
 
         <ul class="navbar-nav ">
             <li class="nav-item">
-                <a class="nav-link" href="/chatwork/users/notice">
+                <a class="nav-link" href="/users/notice">
                     <i class="fa fa-bell">
                         <span class="badge badge-info"><?php if (isset($notice)) {
                             echo $notice;
@@ -90,6 +89,9 @@
     .bg-dark {
         background: url(https://asqblog.files.wordpress.com/2018/08/network-3357642_1280.jpg?w=1280) no-repeat top center;
         background-size: 100%;
+    }
+    .logo{
+        width: 5%;
     }
 </style>
 <script>
