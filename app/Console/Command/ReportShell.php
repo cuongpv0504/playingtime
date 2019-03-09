@@ -14,20 +14,169 @@ class ReportShell extends AppShell
 
 	public function main()
 	{
+		$data = $this->User->find('all');
+		foreach ($data as $key => $value) {
+			$off_data = $this->Off->find('all',array(
+				'conditions' => array(
+					'User.id' => $value['User']['id']
+				)
+			));
+
+			$user_data = array(
+				'email' => $value['User']['email'],
+				'name' => $value['User']['name']
+			);
+
+			pr($off_data);
+			// $this->createDocument($user_data,$off_data);
+		}
+	}
+
+	public function createDocument($user_data,$off_data)
+	{
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 
-		$section= $phpWord->addSection(array('orientation' => 'landscape'));
-		$title = 'LEAVE REQUEST FORM';
-		$subTitle = 'ĐƠN XIN NGHỈ';
-
-		$section->addText($title,array(
-			'name' => 'Times New Roman',
-			'size' => 36,
-			'bold' => true,
+		$section= $phpWord->addSection(array(
+			'orientation' => 'landscape',
+			'marginLeft' => 600,
+			'marginRight' => 600,
+			'marginTop' => 600, 
+			'marginBottom' => 600
 		));
+		$title = 'LEAVE REQUEST FORM';
+		$subTitle = 'ĐƠN XIN NGHỈ NĂM 2019';
+
+		$paragraphStyle = array(
+			'alignment' => 'center'
+		);
+
+		$paragraphCellStyle = array(
+			'alignment' => 'center',
+			'spaceBefore' => 100,
+			'spaceAfter' => 100
+		);
+
+		$section->addText(
+			$title,
+			array(
+			'size' => 26,
+			'bold' => true
+			),
+			$paragraphStyle
+		);
+		$section->addText(
+			$subTitle,
+			array(
+			'size' => 20
+			),
+			$paragraphStyle
+		);
+
+		//table
+		$table = $section->addTable(
+			array(
+				'borderSize' => 6, 
+				'borderColor' => '000000',
+				'alignment' => 'center'
+			)
+		);
+
+		$colSpan = array(
+			'gridSpan' => 2
+		);
+
+		$cellRowSpan = array(
+			'vMerge' => 'restart'
+		);
+
+		$cellRowContinue = array(
+			'vMerge' => 'continue'
+		);
+
+		$fontHeaderFormat = array(
+			'size' => 12,
+			'bold' => true
+		);
+
+		$fontCellFormat = array(
+			'size' => 12
+		);
+
+		$row = $table->addRow();
+		$row->addCell(3000, $colSpan)->addText('Division', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(2000, $colSpan)->addText('Team', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(2000, $colSpan)->addText('Position', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(5000, $colSpan)->addText('Full Name', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(2000)->addText('Enable Annual Leave', $fontCellFormat, $paragraphCellStyle);
+
+		$row = $table->addRow();
+		$row->addCell(null, $colSpan)->addText('Engineer', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(null, $colSpan)->addText('', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(null, $colSpan)->addText('Staff', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(null, $colSpan)->addText($user_data['email'], $fontHeaderFormat, $paragraphCellStyle);
+		$row->addCell(null, $colSpan)->addText('12', $fontHeaderFormat, $paragraphCellStyle);
+
+		$row = $table->addRow();
+		$row->addCell(1500, $cellRowSpan)->addText('Date of request', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(1500, $cellRowSpan)->addText('Date of leave', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(null, $colSpan)->addText('Annual Leave', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(1000, $cellRowSpan)->addText('Orther leave', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(1000, $cellRowSpan)->addText('Type of orther leave', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(3500, $cellRowSpan)->addText('Reason', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(1500, $cellRowSpan)->addText('Signature of employee', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(2000, $cellRowSpan)->addText('Approval Authority', $fontCellFormat, $paragraphCellStyle);
+
+		$row = $table->addRow();
+		$row->addCell(null, $cellRowContinue);
+		$row->addCell(null, $cellRowContinue);
+		$row->addCell(1000)->addText('No of AL day', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(1000)->addText('No of AL day remain', $fontCellFormat, $paragraphCellStyle);
+		$row->addCell(null, $cellRowContinue);
+		$row->addCell(null, $cellRowContinue);
+		$row->addCell(null, $cellRowContinue);
+		$row->addCell(null, $cellRowContinue);
+		$row->addCell(null, $cellRowContinue);
+
+		if (count($off_data) > 12) {
+			$row = count($off_data);
+		} else {
+			$row = 12;
+		}
+
+		for ($i=0; $i < $row; $i++) { 
+			$row = $table->addRow();
+			if ($i >= count($off_data)) {
+				$row->addCell(null);
+				$row->addCell(null);
+				$row->addCell(null);
+				$row->addCell(null);
+				$row->addCell(null);
+				$row->addCell(null);
+				$row->addCell(null);
+				$row->addCell(null);
+				$row->addCell(null);
+			} else {
+				$row->addCell(null)->addText(date('m/d',strtotime($off_data[$i]['Off']['create_at'])), $fontCellFormat, $paragraphCellStyle);
+				$row->addCell(null)->addText($off_data[$i]['Off']['dates'], $fontCellFormat, $paragraphCellStyle);
+				$row->addCell(null)->addText($off_data[$i]['Off']['duration'], $fontCellFormat, $paragraphCellStyle);
+				$row->addCell(null)->addText($off_data[$i]['Off']['day_left'], $fontCellFormat, $paragraphCellStyle);
+
+				if ($off_data[$i]['Off']['type'] != 0) {
+					$row->addCell(null)->addText($off_data[$i]['Off']['duration'], $fontCellFormat, $paragraphCellStyle);
+					$row->addCell(null)->addText($off_data[$i]['Type']['description'], $fontCellFormat, $paragraphCellStyle);
+				} else {
+					$row->addCell(null);
+					$row->addCell(null);
+				}
+
+				$row->addCell(null)->addText($off_data[$i]['Off']['reason'], $fontCellFormat, $paragraphCellStyle);
+				$row->addCell(null)->addText($user_data['name'], $fontCellFormat, $paragraphCellStyle);
+				$row->addCell(null)->addText($off_data[$i]['Status']['status'], $fontCellFormat, $paragraphCellStyle);
+			}		
+		}
 
 		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
-		$objWriter->save(APP. DS . 'tmp' . DS . 'report' . DS . 'helloWorld.docx');
+		$objWriter->save(APP. DS . 'tmp' . DS . 'report' . DS . 'LeaveRequest.docx');
 	}
 }
 ?>
