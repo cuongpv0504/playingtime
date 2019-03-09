@@ -14,7 +14,9 @@ class WordController extends AppController
 
 	public function downloadDocument($id)
 	{
-
+		$path = WWW_ROOT . 'report' . DS . $id . '.docx';
+		pr($path);
+		$this->export($id);
 		$this->response->file($path);
 	}
 
@@ -33,7 +35,7 @@ class WordController extends AppController
 			'id' => $id
 		);
 
-		$off_data = $this->Off->find('first',array(
+		$off_data = $this->Off->find('all',array(
 			'conditions' => array(
 				'User.id' => $id
 			)
