@@ -28,8 +28,6 @@ class UsersController extends AppController
 	const TEST_ROOM = '132078386';
 	const TEST_ID = '2503016'; // cuong chatwork id
 
-	const WAITING = 2;
-
 	public function beforeFilter() {
 	    if (!session_id()) {
             session_start();
@@ -95,18 +93,18 @@ class UsersController extends AppController
 
 	public function login()
 	{
-		$provider = new ChatWorkProvider(
-		    OAUTH2_CLIENT_ID,
-		    OAUTH2_CLIENT_SECRET,
-		    OAUTH2_REDIRECT_URI2
-		);
-
-		$url = $provider->getAuthorizationUrl([
-		    'scope' => ['users.all:read', 'rooms.all:read_write']
-		]);
-
-		$this->set('login_url',$url);
-        // $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
+//		$provider = new ChatWorkProvider(
+//		    OAUTH2_CLIENT_ID,
+//		    OAUTH2_CLIENT_SECRET,
+//		    OAUTH2_REDIRECT_URI2
+//		);
+//
+//		$url = $provider->getAuthorizationUrl([
+//		    'scope' => ['users.all:read', 'rooms.all:read_write']
+//		]);
+//
+//		$this->set('login_url',$url);
+         $_SESSION['email'] = "s-usui@tmh-techlab.vn";
 	}
 
 	public function logout()
@@ -634,7 +632,7 @@ class UsersController extends AppController
             }
 
             foreach ($leaveData as $key => $value) {
-            	$this->Leave->id = $value['Off']['id'];
+            	$this->Leave->id = $value['Leave']['id'];
             	$this->Leave->save(array(
             		'notice' => '0'
             	));

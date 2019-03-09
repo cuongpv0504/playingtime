@@ -1232,18 +1232,17 @@ class ApiController extends AppController
 					'Off.user_id' => $user_id
 				)
 			));
+            //check owned
+            if (empty($check)) {
+                $this->response->statusCode(406);
+                return json_encode(array(
+                    'error' => 'You dont have permission'
+                ));
+            }
 
 			$reason = $check['Off']['reason'];
 			$duration = $check['Off']['duration'];
 			$dates = $check['Off']['dates'];
-
-			//check owned
-			if (empty($check)) {
-				$this->response->statusCode(406);
-				return json_encode(array(
-					'error' => 'You dont have permission'
-				));
-			}
 
 			$pattern = '/[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])/';
             preg_match_all($pattern,$dates,$out,PREG_PATTERN_ORDER);
@@ -1334,19 +1333,18 @@ class ApiController extends AppController
 					'Leave.user_id' => $user_id
 				)
 			));
+            //check owned
+            if (empty($check)) {
+                $this->response->statusCode(406);
+                return json_encode(array(
+                    'error' => 'You dont have permission'
+                ));
+            }
 
 			if (strtotime($check['Leave']['date']) <= strtotime(date('Y-m-d'))) {
 				$this->response->statusCode(406);
 				return json_encode(array(
 					'error' => 'Can not delete. The day has gone.'
-				));
-			}
-
-			//check owned
-			if (empty($check)) {
-				$this->response->statusCode(406);
-				return json_encode(array(
-					'error' => 'You dont have permission'
 				));
 			}
 
@@ -1363,17 +1361,17 @@ class ApiController extends AppController
 				'method' => '2'
 			);
 
-			$chatwork_data['content'] = 'I was looking for leaving the office from ' . date("H:i", strtotime($start))
-			. ' to ' . date("H:i", strtotime($end)) . ' because ' . $reason . '. But now Im no longer need to leaving the the office at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+			$chatwork_data['content'] = 'I was looking for leaving the office from ' . date("H:i", strtotime($check['Leave']['start']))
+			. ' to ' . date("H:i", strtotime($check['Leave']['end'])) . ' because ' . $check['Leave']['reason'] . '. But now Im no longer need to leaving the the office at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
 
-			if (strtotime($end) == strtotime('17:30:00')) {
-				$chatwork_data['content'] = 'I was looking for leaving soon from ' . date("H:i", strtotime($start))
-			. ' because ' . $reason . '. But now Im no longer need to leaving soon at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+			if (strtotime($check['Leave']['end']) == strtotime('17:30:00')) {
+				$chatwork_data['content'] = 'I was looking for leaving soon from ' . date("H:i", strtotime($check['Leave']['start']))
+			. ' because ' . $check['Leave']['reason'] . '. But now Im no longer need to leaving soon at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
 			}
 
-			if (strtotime($start) == strtotime('08:30:00')) {
-				$chatwork_data['content'] = 'I was looking for coming late at ' . date("H:i", strtotime($end))
-			. ' because ' . $reason .  '. But now Im no longer need to coming late at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+			if (strtotime($check['Leave']['start']) == strtotime('08:30:00')) {
+				$chatwork_data['content'] = 'I was looking for coming late at ' . date("H:i", strtotime($check['Leave']['end']))
+			. ' because ' . $check['Leave']['reason'] .  '. But now Im no longer need to coming late at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
 			}
 
 			$chatwork_data['users'][] = array(

@@ -190,9 +190,23 @@
                                                     </button>
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
                                                         <div class="h6 dropdown-header">Configuration</div>
-                                                        <a class="dropdown-item" href="#">Save</a>
-                                                        <a class="dropdown-item" href="#">Hide</a>
-                                                        <a class="dropdown-item" href="#">Report</a>
+                                                        <?php
+                                                          if(isset($user_data['role']) && $user_data['role'] == 1){
+                                                                if($value['status'] == 'WAITING'){
+                                                                ?>
+                                                        <a class="dropdown-item accept" href="#">Accept</a>
+                                                        <a class="dropdown-item denny" href="#">Denny</a>
+                                                        <?php
+                                                                 }
+                                                                 ?>
+                                                        <?php
+                                                             }else{
+                                                             ?>
+                                                        <a class="dropdown-item edit" href="#">Edit</a>
+                                                        <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="off">Delete</a>
+                                                        <?php
+                                                            }
+                                                        ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -256,9 +270,23 @@
                                                     </button>
                                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
                                                         <div class="h6 dropdown-header">Configuration</div>
-                                                        <a class="dropdown-item" href="#">Save</a>
-                                                        <a class="dropdown-item" href="#">Hide</a>
-                                                        <a class="dropdown-item" href="#">Report</a>
+                                                        <?php
+                                                          if(isset($user_data['role']) && $user_data['role'] == 1){
+                                                                if($value['status'] == 'WAITING'){
+                                                                ?>
+                                                                            <a class="dropdown-item accept" href="#">Accept</a>
+                                                                            <a class="dropdown-item denny" href="#">Denny</a>
+                                                                            <?php
+                                                                 }
+                                                                 ?>
+                                                                            <?php
+                                                             }else{
+                                                             ?>
+                                                                            <a class="dropdown-item edit" href="#">Edit</a>
+                                                                            <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="leave">Delete</a>
+                                                             <?php
+                                                            }
+                                                        ?>
                                                     </div>
                                                 </div>
                                             </div>
@@ -342,7 +370,7 @@
                                     <p><?php echo $userData['User']['email']?></p>
                                 </th>
                                 <th>
-                                    <p><?php echo $userData['User']['day_off_left']?></p>
+                                    <p>12</p>
                                 </th>
                             </tr>
                             <tr class="title">
@@ -479,6 +507,28 @@
                 $(this).css("background-color","#f2dede");
                 $(this).find(".colorStatus").addClass("text-danger");
             }
+        });
+        $('.delete').click(function(){
+            var idPost = $(this).attr("data");
+            console.log(idPost);
+            var infoPost = $(this).attr("data-info");
+            console.log(infoPost);
+            $.ajax({
+                type:"POST",
+                url: "/request/delete",
+                data : {
+                    "idPost" : idPost,
+                    "infoPost" : infoPost
+                },
+                success: function (data_success) {
+                    console.log(data_success);
+                    alert("You successfully deleted");
+                    location.reload();
+                },
+                error: function(data){
+                    alert(data['responseText']);
+                }
+            });
         });
     });
 </script>

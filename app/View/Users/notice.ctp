@@ -1,8 +1,7 @@
 <?php
     $this->assign('title','Yasumi Network');
-echo $this->element('nav');
+    echo $this->element('nav');
 ?>
-
 <div class="container-fluid gedf-wrapper">
     <div class="row">
         <div class="col-md-6 offset-md-3 gedf-main">
@@ -44,15 +43,15 @@ echo $this->element('nav');
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
                                     <div class="h6 dropdown-header">Configuration</div>
                                     <?php
-                                        if(isset($value['role']) && $value['role'] == 1){
+                                       if(isset($value['role']) && $value['role'] == 1){
                                         ?>
-                                            <a class="dropdown-item" href="#">Accept</a>
-                                            <a class="dropdown-item" href="#">Deny</a>
+                                            <a class="dropdown-item accept" href="#">Accept</a>
+                                            <a class="dropdown-item denny" href="#">Denny</a>
                                         <?php
                                         }else{
                                         ?>
-                                            <a class="dropdown-item" href="#">Edit</a>
-                                            <a class="dropdown-item" href="#">Delete</a>
+                                            <a class="dropdown-item edit" href="#">Edit</a>
+                                            <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>" href="#">Delete</a>
                                         <?php
                                         }
                                     ?>
@@ -104,6 +103,28 @@ echo $this->element('nav');
                 $(this).css("background-color","#f2dede");
                 $(this).find(".colorStatus").addClass("text-danger");
             }
+        });
+        $('.delete').click(function(){
+            var idPost = $(this).attr("data");
+            console.log(idPost);
+            var infoPost = $(this).attr("data-info");
+            console.log(infoPost);
+            $.ajax({
+                type:"POST",
+                url: "/request/delete",
+                data : {
+                    "idPost" : idPost,
+                    "infoPost" : infoPost
+                },
+                success: function (data_success) {
+                    console.log(data_success);
+                    alert("You successfully deleted");
+                    location.reload();
+                },
+                error: function(data){
+                    alert(data['responseText']);
+                }
+            });
         });
     });
 </script>
