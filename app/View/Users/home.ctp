@@ -42,13 +42,12 @@
                                     <i class="fa fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                    <div class="h6 dropdown-header">Configuration</div>
                                     <?php
                                        if(isset($user_data['role']) && $user_data['role'] == 1){
                                             if($value['status'] == 'WAITING'){
                                             ?>
-                                            <a class="dropdown-item accept" href="#">Accept</a>
-                                            <a class="dropdown-item denny" href="#">Denny</a>
+                                            <a class="dropdown-item accept" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Accept</a>
+                                            <a class="dropdown-item denny" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Denny</a>
                                             <?php
                                              }
                                              ?>
@@ -121,6 +120,46 @@
                 success: function (data_success) {
                     console.log(data_success);
                     alert("You successfully deleted");
+                    location.reload();
+                },
+                error: function(data){
+                    alert(data['responseText']);
+                }
+            });
+        });
+        $('.accept').click(function(){
+            var idPost = $(this).attr("data");
+            var infoPost = $(this).attr("data-info");
+            $.ajax({
+                type:"POST",
+                url: "/request/accept",
+                data : {
+                    "id" : idPost,
+                    "info" : infoPost,
+                    "status" : 1
+                },
+                success: function (data_success) {
+                    alert("success");
+                    location.reload();
+                },
+                error: function(data){
+                    alert(data['responseText']);
+                }
+            });
+        });
+        $('.denny').click(function(){
+            var idPost = $(this).attr("data");
+            var infoPost = $(this).attr("data-info");
+            $.ajax({
+                type:"POST",
+                url: "/request/accept",
+                data : {
+                    "id" : idPost,
+                    "info" : infoPost,
+                    "status" : 3
+                },
+                success: function (data_success) {
+                    alert("success");
                     location.reload();
                 },
                 error: function(data){

@@ -414,6 +414,7 @@ class UsersController extends AppController
                 'type' => $value['Type']['description'],
                 'day_left' => $value['Off']['day_left'],
                 'status' => $value['Status']['status'],
+                'info'  => "off",
                 'time' => strtotime($value['Off']['create_at']),
                 'user_name' => $value['User']['name'],
                 'author' => array(
