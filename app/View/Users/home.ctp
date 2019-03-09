@@ -118,7 +118,7 @@
             console.log(infoPost);
             $.ajax({
                 type:"POST",
-                url: "/request/delete",
+                url: "/chatwork/request/delete",
                 data : {
                     "idPost" : idPost,
                     "infoPost" : infoPost

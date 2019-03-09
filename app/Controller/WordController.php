@@ -1,4 +1,4 @@
-<?php
+<?php  
 App::import('Vendor', 'vendor', array('file' => 'autoload.php'));
 
 use PhpOffice\PhpWord\Settings;
@@ -8,33 +8,46 @@ use PhpOffice\PhpWord\Style\TablePosition;
 /**
  * 
  */
-class ReportShell extends AppShell
+class WordController extends AppController
 {
 	public $uses = array('User','Off','Leave');
 
-	public function main()
+	public function downloadDocument($id)
 	{
-		$data = $this->User->find('all');
-		foreach ($data as $key => $value) {
-			$off_data = $this->Off->find('all',array(
-				'conditions' => array(
-					'User.id' => $value['User']['id']
-				)
-			));
+		$path = WWW_ROOT . 'report' . DS . $id . '.docx';
+		pr($path);
+		$this->export($id);
+		$this->response->file($path);
+	}
 
-			$user_data = array(
-				'email' => $value['User']['email'],
-				'name' => $value['User']['name'],
-				'id' => $value['User']['id']
-			);
+	public function export($id)
+	{
+		$this->autoRendeer = false;
+		$data = $this->User->find('first',array(
+			'conditions' => array(
+				'User.id' => $id
+			)
+		));
 
-			// pr($off_data);
-			$this->createDocument($user_data,$off_data);
-		}
+		$user_data = array(
+			'email' => $data['User']['email'],
+			'name' => $data['User']['name'],
+			'id' => $id
+		);
+
+		$off_data = $this->Off->find('all',array(
+			'conditions' => array(
+				'User.id' => $id
+			)
+		));
+		
+		$this->createDocument($user_data,$off_data);
+		
 	}
 
 	public function createDocument($user_data,$off_data)
 	{
+		$this->autoRendeer = false;
 		$phpWord = new \PhpOffice\PhpWord\PhpWord();
 
 		$section= $phpWord->addSection(array(
