@@ -28,8 +28,6 @@ class UsersController extends AppController
 	const TEST_ROOM = '132078386';
 	const TEST_ID = '2503016'; // cuong chatwork id
 
-	const WAITING = 2;
-
 	public function beforeFilter() {
 	    if (!session_id()) {
             session_start();

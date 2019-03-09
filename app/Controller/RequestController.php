@@ -27,7 +27,6 @@ class RequestController extends AppController
     const TEST_TOKEN = 'b26008724e3f7cfc392bfbd4d9707e5c';
     const TEST_ROOM = '132078386';
     const TEST_ID = '2503016'; // cuong chatwork id
-    const WAITING = 2;
 
     public function beforeFilter() {
         if (!session_id()) {

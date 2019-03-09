@@ -24,11 +24,12 @@ class ReportShell extends AppShell
 
 			$user_data = array(
 				'email' => $value['User']['email'],
-				'name' => $value['User']['name']
+				'name' => $value['User']['name'],
+				'id' => $value['User']['id']
 			);
 
-			pr($off_data);
-			// $this->createDocument($user_data,$off_data);
+			// pr($off_data);
+			$this->createDocument($user_data,$off_data);
 		}
 	}
 
@@ -114,7 +115,7 @@ class ReportShell extends AppShell
 		$row->addCell(null, $colSpan)->addText('', $fontCellFormat, $paragraphCellStyle);
 		$row->addCell(null, $colSpan)->addText('Staff', $fontCellFormat, $paragraphCellStyle);
 		$row->addCell(null, $colSpan)->addText($user_data['email'], $fontHeaderFormat, $paragraphCellStyle);
-		$row->addCell(null, $colSpan)->addText('12', $fontHeaderFormat, $paragraphCellStyle);
+		$row->addCell(null)->addText('12', $fontHeaderFormat, $paragraphCellStyle);
 
 		$row = $table->addRow();
 		$row->addCell(1500, $cellRowSpan)->addText('Date of request', $fontCellFormat, $paragraphCellStyle);
@@ -138,12 +139,12 @@ class ReportShell extends AppShell
 		$row->addCell(null, $cellRowContinue);
 
 		if (count($off_data) > 12) {
-			$row = count($off_data);
+			$row_num = count($off_data);
 		} else {
-			$row = 12;
+			$row_num = 12;
 		}
 
-		for ($i=0; $i < $row; $i++) { 
+		for ($i=0; $i < $row_num; $i++) { 
 			$row = $table->addRow();
 			if ($i >= count($off_data)) {
 				$row->addCell(null);
@@ -176,7 +177,7 @@ class ReportShell extends AppShell
 		}
 
 		$objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
-		$objWriter->save(APP. DS . 'tmp' . DS . 'report' . DS . 'LeaveRequest.docx');
+		$objWriter->save(WWW_ROOT . 'report' . DS . $user_data['id'].'.docx');
 	}
 }
 ?>

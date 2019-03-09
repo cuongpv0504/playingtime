@@ -26,7 +26,7 @@
         <?php
             if($user_data['role'] == 1 || $user_data['role'] == 2){
             ?>
-            <form class="form-inline" method="post" action="/users/search">
+            <form class="form-inline" method="post" action="/chatwork/users/search">
                 <div class="input-group">
                     <input type="text" class="form-control" placeholder="Search" name="search"  aria-label="Recipient's username" aria-describedby="button-addon2">
                     <div class="input-group-append">
@@ -66,16 +66,16 @@
                         <?php
                             if($user_data['role'] == 1){
                             ?>
-                                <a class="dropdown-item" href="/users/profileAdmin">Profile</a>
+                                <a class="dropdown-item" href="/chatwork/users/profileAdmin">Profile</a>
                             <?php
                             }else{
                             ?>
-                                <a class="dropdown-item" href="/users/profile">Profile</a>
+                                <a class="dropdown-item" href="/chatwork/users/profile">Profile</a>
                             <?php
                             }
                         ?>
 
-                        <a class="dropdown-item" href="/users/logout">Logout</a>
+                        <a class="dropdown-item" href="/chatwork/users/logout">Logout</a>
                     </div>
                 </div>
             </li>
