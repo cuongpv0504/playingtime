@@ -11,6 +11,7 @@ use GuzzleHttp\Client;
  */
 class ApiController extends AppController
 {
+	
 	public $uses = array('User','Leave','Off','Comment');
 	public $helpers = array('Html');
 
