@@ -28,6 +28,22 @@ class RequestController extends AppController
     const TEST_ROOM = '132078386';
     const TEST_ID = '2503016'; // cuong chatwork id
 
+    private function getRole() {
+        $email = $_SESSION['email'];
+
+        $check = $this->User->find('first',array(
+            'conditions' => array(
+                'email' => $email
+            )
+        ));
+
+        if (!empty($check)) {
+            return $check['User']['role'];
+        }
+
+        return 0;
+    }
+
     public function beforeFilter() {
         if (!session_id()) {
             session_start();
@@ -260,11 +276,12 @@ class RequestController extends AppController
 
     //info: off or leave
     //id: id of off or leave
-    public function delete($info, $id){
+    public function delete(){
         $this->autoRender = false;
-
+        $info = $_POST['infoPost'];
+        $id = $_POST['idPost'];
         $email = $_SESSION['email'];
-        // $email = 'huandv@tmh-techlab.vn';
+//        $email = "thaovtp@tmh-techlab.vn";
 
         //get user_data
         $data = $this->User->find(
@@ -286,17 +303,17 @@ class RequestController extends AppController
                 )
             ));
 
+            //check owned
+            if (empty($check)) {
+                $this->response->statusCode(406);
+                return 'You dont have permission';
+            }
+
+
             $reason = $check['Off']['reason'];
             $duration = $check['Off']['duration'];
             $dates = $check['Off']['dates'];
 
-            //check owned
-            if (empty($check)) {
-                $this->response->statusCode(406);
-                return json_encode(array(
-                    'error' => 'You dont have permission'
-                ));
-            }
 
             $pattern = '/[0-9]{4}\/(0[1-9]|1[0-2])\/(0[1-9]|[1-2][0-9]|3[0-1])/';
             preg_match_all($pattern,$dates,$out,PREG_PATTERN_ORDER);
@@ -307,12 +324,10 @@ class RequestController extends AppController
                     $time = false;
                 }
             }
-            
+
             if (!$time) {
                 $this->response->statusCode(406);
-                return json_encode(array(
-                    'error' => 'The day has gone, can not delete'
-                ));
+                return 'The day has gone, can not delete';
             }
 
             //send chatwork
@@ -338,12 +353,12 @@ class RequestController extends AppController
             if (isset($res->errors)) {
                 $access_token = $this->getAccessToken($data['User']['refresh_token']);
                 $chatwork_data['access_token'] = $access_token;
-                $res = $this->sendChatWork($chatwork_data);         
+                $res = $this->sendChatWork($chatwork_data);
             }
 
             //delete off
             if ($this->Off->delete($id)) {
-                
+
                 //update all off after
                 $offList = $this->Off->find('all',array(
                     'conditions' => array(
@@ -365,12 +380,12 @@ class RequestController extends AppController
                 if ($check['Off']['type'] == 0) {
                     $save = array(
                         'day_off_left' => $data['User']['day_off_left'] + $check['Off']['duration']
-                    );              
+                    );
                 } else {
                     $save = array(
                         'day_off_left' => $data['User']['day_off_left']
                     );
-                }       
+                }
                 if ($check['Off']['status'] != self::DENY) {
                     $this->User->id = $user_id;
                     $this->User->save($save);
@@ -379,9 +394,7 @@ class RequestController extends AppController
                 return json_encode('1');
             } else {
                 $this->response->statusCode(406);
-                return json_encode(array(
-                    'error' => 'Error when delete'
-                ));
+                return 'Error when delete';
             }
         } elseif ($info == 'leave') {
             $check = $this->Leave->find('first',array(
@@ -391,20 +404,18 @@ class RequestController extends AppController
                 )
             ));
 
-            if (strtotime($check['Leave']['date']) <= strtotime(date('Y-m-d'))) {
-                $this->response->statusCode(406);
-                return json_encode(array(
-                    'error' => 'Can not delete. The day has gone.'
-                ));
-            }
-
             //check owned
             if (empty($check)) {
                 $this->response->statusCode(406);
-                return json_encode(array(
-                    'error' => 'You dont have permission'
-                ));
+                return 'You dont have permission';
             }
+
+            if (strtotime($check['Leave']['date']) <= strtotime(date('Y-m-d'))) {
+                $this->response->statusCode(406);
+                return 'Can not delete. The day has gone.';
+            }
+
+
 
             //send chatwork
             $chatwork_data = array(
@@ -412,17 +423,17 @@ class RequestController extends AppController
                 'method' => '2'
             );
 
-            $chatwork_data['content'] = 'I was looking for leaving the office from ' . date("H:i", strtotime($start))
-            . ' to ' . date("H:i", strtotime($end)) . ' because ' . $reason . '. But now Im no longer need to leaving the the office at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+            $chatwork_data['content'] = 'I was looking for leaving the office from ' . date("H:i", strtotime($check['Leave']['start']))
+                . ' to ' . date("H:i", strtotime($check['Leave']['end'])) . ' because ' . $check['Leave']['reason'] . '. But now Im no longer need to leaving the the office at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
 
-            if (strtotime($end) == strtotime('17:30:00')) {
-                $chatwork_data['content'] = 'I was looking for leaving soon from ' . date("H:i", strtotime($start))
-            . ' because ' . $reason . '. But now Im no longer need to leaving soon at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+            if (strtotime($check['Leave']['end']) == strtotime('17:30:00')) {
+                $chatwork_data['content'] = 'I was looking for leaving soon from ' . date("H:i", strtotime($check['Leave']['start']))
+                    . ' because ' . $check['Leave']['reason'] . '. But now Im no longer need to leaving soon at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
             }
 
-            if (strtotime($start) == strtotime('08:30:00')) {
-                $chatwork_data['content'] = 'I was looking for coming late at ' . date("H:i", strtotime($end))
-            . ' because ' . $reason .  '. But now Im no longer need to coming late at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
+            if (strtotime($check['Leave']['start']) == strtotime('08:30:00')) {
+                $chatwork_data['content'] = 'I was looking for coming late at ' . date("H:i", strtotime($check['Leave']['end']))
+                    . ' because ' . $check['Leave']['reason'] .  '. But now Im no longer need to coming late at that time. So I want to cancel my request. Sorry for inconvenience (bow)';
             }
 
             $chatwork_data['users'][] = array(
@@ -440,7 +451,7 @@ class RequestController extends AppController
             if (isset($res->errors)) {
                 $access_token = $this->getAccessToken($data['User']['refresh_token']);
                 $chatwork_data['access_token'] = $access_token;
-                $res = $this->sendChatWork($chatwork_data);         
+                $res = $this->sendChatWork($chatwork_data);
             }
 
             //delete Leave
@@ -448,16 +459,154 @@ class RequestController extends AppController
                 return json_encode('1');
             } else {
                 $this->response->statusCode(406);
-                return json_encode(array(
-                    'error' => 'Error when delete'
-                ));
+                return 'Error when delete';
             }
         } else {
             $this->response->statusCode(406);
+            return 'Wrong info';
+        }
+    }
+
+    public function accept(){
+        $this->autoRender = false;
+
+        if ($this->getRole() != self::ADMIN) {
+            $this->response->statusCode(406);
             return json_encode(array(
-                'error' => 'Wrong info'
+                'error' => 'You dont have permission'
             ));
         }
+
+        $admin = $this->User->find('first',array(
+            'conditions' => array(
+                'User.email' => $_SESSION['email']
+            )
+        ));
+
+        //id cua off hoac leave
+        $id = $_POST['id'];
+        $info = $_POST['info'];
+        $status = $_POST['status'];
+        $this->log($status);
+        if ($info == 'off') {
+            $user_data = $this->Off->find('first',array(
+                'conditions' => array(
+                    'Off.id' => $_POST['id']
+                )
+            ));
+        } elseif ($info == 'leave') {
+            $user_data = $this->Leave->find('first',array(
+                'conditions' => array(
+                    'Leave.id' => $_POST['id']
+                )
+            ));
+        }
+
+        if ($status == self::APPROVED) {
+            $data = array(
+                'access_token' => $admin['User']['access_token'],
+                'content' => '(roger)',
+                'method' => '3'
+            );
+
+            $data['users'][] = array(
+                'chatwork_id' => $user_data['User']['chatwork_id'],
+                'chatwork_name' => $user_data['User']['name']
+            );
+
+            $res = $this->sendChatWork($data);
+
+            if (isset($res->errors)) {
+                $access_token = $this->getAccessToken($admin['User']['refresh_token']);
+                $data['access_token'] = $access_token;
+                $res = $this->sendChatWork($data);
+            }
+        } elseif ($status == self::DENY) {
+            $data = array(
+                'access_token' => $user_data['User']['access_token'],
+                'content' => '(shake)',
+                'method' => '3'
+            );
+
+            $data['users'][] = array(
+                'chatwork_id' => $user_data['User']['chatwork_id'],
+                'chatwork_name' => $user_data['User']['name']
+            );
+
+            $res = $this->sendChatWork($data);
+
+            if (isset($res->errors)) {
+                $access_token = $this->getAccessToken($admin['User']['refresh_token']);
+                $data['access_token'] = $access_token;
+                $res = $this->sendChatWork($data);
+            }
+        }
+
+        if ($info == 'off') {
+
+            $off_data = $this->Off->find('first',array(
+                'conditions' => array(
+                    'Off.id' => $id
+                )
+            ));
+            $this->Off->id = $id;
+
+            $user_id = $off_data['User']['id'];
+            $day_off_left = $off_data['User']['day_off_left'];
+            $duration = $off_data['Off']['duration'];
+
+            $save = array(
+                'status' => $status,
+                'notice' => '1',
+                'approve_time' => date("Y-m-d H:i:s")
+            );
+            if ($this->Off->save($save)) {
+                //update all off after
+                $offList = $this->Off->find('all',array(
+                    'conditions' => array(
+                        'Off.id >' => $id
+                    )
+                ));
+
+                foreach ($offList as $key => $off) {
+                    $off_save = array(
+                        'day_left' => $off['Off']['day_left'] + $off_data['Off']['duration']
+                    );
+                    if ($status != self::DENY && $off_data['Off']['type'] == 0) {
+                        $this->Off->id = $off['Off']['id'];
+                        $this->Off->save($off_save);
+                    }
+                }
+
+                //update User day_off_left
+                if ($off_data['Off']['type'] == 0) {
+                    $day_off_left = $day_off_left + $duration;
+                }
+                if ($status == self::DENY) {
+                    $this->User->id = $user_id;
+                    $this->User->save(array(
+                        'day_off_left' => $day_off_left
+                    ));
+                }
+                return json_encode('1');
+            } else {
+                return json_encode('0');
+            }
+        } elseif ($info == 'leave') {
+            $this->Leave->id = $id;
+            $save = array(
+                'status' => $status,
+                'notice' => '1',
+                'approve_time' => date("Y-m-d H:i:s")
+            );
+            if ($this->Leave->save($save)) {
+                return json_encode('1');
+            } else {
+                return json_encode('0');
+            }
+        }
+
+        return json_encode('0');
     }
 
     private function sendChatWork($data){

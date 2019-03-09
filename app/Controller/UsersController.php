@@ -93,18 +93,18 @@ class UsersController extends AppController
 
 	public function login()
 	{
-		$provider = new ChatWorkProvider(
-		    OAUTH2_CLIENT_ID,
-		    OAUTH2_CLIENT_SECRET,
-		    OAUTH2_REDIRECT_URI2
-		);
-
-		$url = $provider->getAuthorizationUrl([
-		    'scope' => ['users.all:read', 'rooms.all:read_write']
-		]);
-
-		$this->set('login_url',$url);
-        // $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
+//		$provider = new ChatWorkProvider(
+//		    OAUTH2_CLIENT_ID,
+//		    OAUTH2_CLIENT_SECRET,
+//		    OAUTH2_REDIRECT_URI2
+//		);
+//
+//		$url = $provider->getAuthorizationUrl([
+//		    'scope' => ['users.all:read', 'rooms.all:read_write']
+//		]);
+//
+//		$this->set('login_url',$url);
+         $_SESSION['email'] = "s-usui@tmh-techlab.vn";
 	}
 
 	public function logout()
@@ -414,6 +414,7 @@ class UsersController extends AppController
                 'type' => $value['Type']['description'],
                 'day_left' => $value['Off']['day_left'],
                 'status' => $value['Status']['status'],
+                'info'  => "off",
                 'time' => strtotime($value['Off']['create_at']),
                 'user_name' => $value['User']['name'],
                 'author' => array(
@@ -632,7 +633,7 @@ class UsersController extends AppController
             }
 
             foreach ($leaveData as $key => $value) {
-            	$this->Leave->id = $value['Off']['id'];
+            	$this->Leave->id = $value['Leave']['id'];
             	$this->Leave->save(array(
             		'notice' => '0'
             	));
