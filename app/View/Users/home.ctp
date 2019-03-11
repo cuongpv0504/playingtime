@@ -75,7 +75,7 @@
                                     <i class="fa fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                    <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
+                                    <a class="dropdown-item edit" href="/chatwork/request/editLeave/<?php echo $value['id']?>">Edit</a>
                                     <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
                                 </div>
                             </div>
@@ -87,7 +87,7 @@
                 </div>
                 <div class="card-body status" data="<?php echo $value['status']; ?>" style="padding-bottom: 1.25rem;padding-top: 1.25rem;padding-left: 1.25rem;padding-right: 0rem;">
                     <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i><?php echo $value['post_at'] ?></div>
-                    <a class="card-link" href="#">
+                    <a class="card-link" href="/chatwork/request/<?php echo $value['info']?>Detail/<?php echo $value['id']?>">
                         <h5 class="card-title"><?php echo 'Asking for ' . $status . ' ' . $time; ?></h5>
                     </a>
                     <?php

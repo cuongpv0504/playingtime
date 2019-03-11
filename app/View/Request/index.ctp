@@ -45,7 +45,7 @@
                         </div>
                         <div class="form-group row" id="otherOff" style="display: none">
                             <div class="col-10 offset-2" >
-                                <input class="form-control" type="text" name="reasonOther" value="Other...">
+                                <input class="form-control" type="text" name="reasonOther" placeholder="Type reason here...">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -86,7 +86,6 @@
                                     <option>PM</option>
                                 </select>
                             </div>
-                            <div class="col-1"><a class="remove"><span class="fa fa-remove" style="font-size:24px;color:red"></span></a></div>
                         </div>
                         <div id="insertDate">
 
@@ -114,7 +113,7 @@
                         </div>
                         <div class="form-group row" id="otherLeave" style="display: none">
                             <div class="col-10 offset-2" >
-                                <input class="form-control" name="reasonOther" type="text" value="Other...">
+                                <input class="form-control" name="reasonOther" type="text" placeholder="Type reason here...">
                             </div>
                         </div>
                         <div class="form-group row">

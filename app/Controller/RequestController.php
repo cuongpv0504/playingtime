@@ -486,7 +486,6 @@ class RequestController extends AppController
         $id = $_POST['id'];
         $info = $_POST['info'];
         $status = $_POST['status'];
-        $this->log($status);
         if ($info == 'off') {
             $user_data = $this->Off->find('first',array(
                 'conditions' => array(
@@ -769,8 +768,6 @@ class RequestController extends AppController
                         'Leave.id' => $id
                     )
                 ));
-
-                $this->log($check);
             }
         }
 
@@ -813,6 +810,158 @@ class RequestController extends AppController
             }
         }
 
+    }
+
+    public function offDetail($id = null){
+        if(!empty($id)){
+            $off_id = $id;
+        }
+
+        if (isset($_POST['read'])) {
+            $this->Off->id = $off_id;
+            $this->Off->save(array(
+                'notice' => '0'
+            ));
+        }
+
+        $offData = $this->Off->find(
+            'first',
+            array(
+                'conditions' => array(
+                    'Off.id' => $off_id
+                )
+            )
+        );
+
+        $commentData = $this->Comment->find(
+            'all',
+            array(
+                'conditions' => array(
+                    'Off.id' => $off_id
+                ),
+                'order' => array('Comment.create_at DESC'),
+                'fields' => array(
+                    'Comment.id', 'Comment.comment', 'Comment.create_at', 'User.name','User.avatar'
+                )
+            )
+        );
+        $data['Off'] = $offData['Off'];
+        $data['Off']['status'] = $offData['Status']['status'];
+        $data['Off']['type'] = $offData['Type']['description'];
+        $data['Off']['user_name'] = $offData['User']['name'];
+        $data['Off']['email'] = $offData['User']['email'];
+        $data['Off']['avatar'] = $offData['User']['avatar'];
+
+        $data['Comment'] = $commentData;
+        $this->set('commentData', $data);
+
+        //save comment
+        if(isset($_POST) && !empty($_POST)){
+            $email = $_SESSION['email'];
+            $data = $this->User->find(
+                'first',
+                array(
+                    'conditions' => array(
+                        'User.email' => $email
+                    )
+                ));
+
+            $idUser = $data['User']['id'];
+            $comment = $_POST['comment'];
+            $off_id = $_POST['offid'];
+
+            $save = array(
+                'user_id' => $idUser,
+                'comment' => $comment,
+                'off_id' => $off_id,
+                'create_at' => date("Y-m-d H:i:s")
+        );
+
+            $this->Comment->create();
+            if ($this->Comment->save($save)) {
+                $this->redirect('/request/offDetail/'. $id);
+            }
+        }
+    }
+
+    public function leaveDetail($id = null){
+        if(!empty($id)){
+            $leave_id = $id;
+        }
+
+        if (isset($_POST['read'])) {
+            $this->Leave->id = $leave_id;
+            $this->Leave->save(array(
+                'notice' => '0'
+            ));
+        }
+
+        $leaveData = $this->Leave->find(
+            'first',
+            array(
+                'conditions' => array(
+                    'Leave.id' => $leave_id
+                )
+            )
+        );
+        $commentData = $this->Comment->find(
+            'all',
+            array(
+                'conditions' => array(
+                    'Leave.id' => $leave_id
+                ),
+                'order' => array('Comment.create_at DESC'),
+                'fields' => array(
+                    'Comment.id', 'Comment.comment','User.name','User.avatar'
+                )
+
+            )
+        );
+        $check = 'leave';
+
+        if (strtotime($leaveData['Leave']['end']) == strtotime('17:30:00')) {
+            $check = 'leaving soon';
+        }
+
+        if (strtotime($leaveData['Leave']['start']) == strtotime('08:30:00')) {
+            $check = 'coming late';
+        }
+        $data['Leave'] = $leaveData['Leave'];
+        $data['Leave']['check'] = $check;
+        $data['Leave']['status'] = $leaveData['Status']['status'];
+        $data['Leave']['user_name'] = $leaveData['User']['name'];
+        $data['Leave']['email'] = $leaveData['User']['email'];
+        $data['Leave']['avatar'] = $leaveData['User']['avatar'];
+
+        $data['Comment'] = $commentData;
+        $this->set('commentData', $data);
+        //save comment
+        if(isset($_POST) && !empty($_POST)){
+            $email = $_SESSION['email'];
+            $data = $this->User->find(
+                'first',
+                array(
+                    'conditions' => array(
+                        'User.email' => $email
+                    )
+                ));
+
+            $idUser = $data['User']['id'];
+            $comment = $_POST['comment'];
+            $leave_id = $_POST['leaveid'];
+
+            $save = array(
+                'user_id' => $idUser,
+                'comment' => $comment,
+                'leave_id' => $leave_id,
+                'create_at' => date("Y-m-d H:i:s")
+            );
+
+            $this->Comment->create();
+            if ($this->Comment->save($save)) {
+                $this->redirect('/request/leaveDetail/'. $id);
+            }
+        }
     }
 
     private function sendChatWork($data){
