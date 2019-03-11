@@ -14,7 +14,7 @@ echo $this->element('nav');
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="mr-2">
-                                <div class="h5 m-0"><img class="rounded-circle" width="45" src="<?php echo $userData['User']['avatar']?>" alt="">  My Profile</div>
+                                <div class="h5 m-0"><img class="rounded-circle" width="45" src="<?php echo $userData['User']['avatar']?>" alt=""> <?php echo $userData['User']['name']; ?></div>
                             </div>
                         </div>
                     </div>
@@ -28,17 +28,6 @@ echo $this->element('nav');
                             "value" => $userData['User']['id'],
                             ));
                             ?>
-                        </li>
-                        <li class="list-group-item">
-                            <?php
-                                    echo $this->Form->Input("name", array(
-                            "value" => $userData['User']['name'],
-                            "type" => "text",
-                            "class" => "inputText",
-                            "disabled" => "disabled"
-                            ));
-                            ?>
-                            <div class="line"></div>
                         </li>
                         <li class="list-group-item">
                             <?php
@@ -65,7 +54,8 @@ echo $this->element('nav');
                             <?php
                                     echo $this->Form->Input("address", array(
                             "value" => $userData['User']['address'],
-                            "type" => "text",
+                            "type" => "textarea",
+                            "rows" => "3",
                             "class" => "inputText"
                             ));
                             ?>
@@ -111,7 +101,37 @@ echo $this->element('nav');
                 ));
                 ?>
             </div>
+            <?php
+                if($user_data['role'] == 2 || $user_data['role'] == 1){
+                ?>
+            <div class="card gedf-card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="ml-2">
+                                <div class="h5 m-0">List users</div>
+                            </div>
+                        </div>
+                    </div>
 
+                </div>
+                <div class="col-md-12 listfriend">
+                    <div class="memberblock">
+                        <?php
+                                foreach($userData['listUser'] as $list){
+                                ?>
+                        <a href="/users/profile/<?php echo $list['User']['id']?>" class="member"> <img class="img<?php echo $list['User']['id']?>" src="<?php echo $list['User']['avatar']?>" alt="">
+                            <div class="memmbername"><?php echo $list['User']['name']?></div>
+                        </a>
+                        <?php
+                                }
+                            ?>
+                    </div>
+                </div>
+            </div>
+            <?php
+                }
+            ?>
 
         </div>
         <div class="col-md-8 col-sm-12 pull-left posttimeline">

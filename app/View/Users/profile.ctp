@@ -14,7 +14,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="mr-2">
-                                <div class="h5 m-0"><img class="rounded-circle" width="45" src="<?php echo $userData['User']['avatar']?>" alt="">  My Profile</div>
+                                <div class="h5 m-0"><img class="rounded-circle" width="45" src="<?php echo $userData['User']['avatar']?>" alt=""> <?php echo $userData['User']['name']; ?></div>
                             </div>
                         </div>
                     </div>
@@ -28,17 +28,6 @@
                             "value" => $userData['User']['id'],
                             ));
                             ?>
-                        </li>
-                        <li class="list-group-item">
-                            <?php
-                                    echo $this->Form->Input("name", array(
-                            "value" => $userData['User']['name'],
-                            "type" => "text",
-                            "class" => "inputText",
-                            "disabled" => "disabled"
-                            ));
-                            ?>
-                            <div class="line"></div>
                         </li>
                         <li class="list-group-item">
                             <?php
@@ -65,7 +54,8 @@
                             <?php
                                     echo $this->Form->Input("address", array(
                             "value" => $userData['User']['address'],
-                            "type" => "text",
+                            "type" => "textarea",
+                            "rows" => "3",
                             "class" => "inputText"
                             ));
                             ?>
@@ -74,10 +64,10 @@
                         <li class="list-group-item">
                             <?php
                                     echo $this->Form->Input("country", array(
-                            "value" => $userData['User']['country'],
-                            "type" => "text",
-                            "class" => "inputText"
-                            ));
+                                        "value" => $userData['User']['country'],
+                                        "type" => "text",
+                                        "class" => "inputText"
+                                        ));
                             ?>
                             <div class="line"></div>
                         </li>
@@ -112,7 +102,7 @@
                 ?>
             </div>
             <?php
-                if($user_data['role'] == 2){
+                if($user_data['role'] == 2 || $user_data['role'] == 1){
                 ?>
                     <div class="card gedf-card">
                         <div class="card-header">
@@ -120,7 +110,6 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="ml-2">
                                         <div class="h5 m-0">List users</div>
-                                        <!--<div class="h7 text-muted">Like to work fr different business</div>-->
                                     </div>
                                 </div>
                             </div>
@@ -131,7 +120,7 @@
                             <?php
                                 foreach($userData['listUser'] as $list){
                                 ?>
-                                <a href="/users/profile/<?php echo $list['User']['id']?>" class="member"> <img src="<?php echo $list['User']['avatar']?>" alt="">
+                                <a href="/users/profile/<?php echo $list['User']['id']?>" class="member"> <img class="img<?php echo $list['User']['id']?>" src="<?php echo $list['User']['avatar']?>" alt="">
                                     <div class="memmbername"><?php echo $list['User']['name']?></div>
                                 </a>
                                 <?php
@@ -139,17 +128,14 @@
                             ?>
                             </div>
                         </div>
-                        <div class="clearfix"></div>
                     </div>
                 <?php
                 }
             ?>
         </div>
         <div class="col-md-8 col-sm-12 pull-left posttimeline">
+            <h4 style="margin-bottom: 10px; color: #212529"><i class="fa fa-history" aria-hidden="true"></i>  History</h4>
             <ul class="nav nav-tabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link">History</a>
-                </li>
                 <li class="nav-item">
                     <a class="nav-link active" data-toggle="tab" href="#Off">Off</a>
                 </li>
@@ -184,30 +170,37 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fa fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                                        <?php
-                                                          if(isset($user_data['role']) && $user_data['role'] == 1){
-                                                                if($value['status'] == 'WAITING'){
-                                                                ?>
+                                                <?php
+                                                   if(isset($user_data['role']) && $user_data['role'] == 1){
+                                                        if($value['status'] == 'WAITING'){
+                                                        ?>
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                    <i class="fa fa-ellipsis-h"></i>
+                                                                </button>
+                                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
                                                                     <a class="dropdown-item accept" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Accept</a>
                                                                     <a class="dropdown-item denny" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Denny</a>
-                                                        <?php
-                                                                 }
-                                                                 ?>
-                                                        <?php
-                                                             }else{
-                                                             ?>
-                                                        <a class="dropdown-item edit" href="#">Edit</a>
-                                                        <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="off">Delete</a>
-                                                        <?php
-                                                            }
+                                                                </div>
+                                                            </div>
+                                                            <?php
+                                                         }
+                                                         ?>
+                                                            <?php
+                                                     }else{
                                                         ?>
-                                                    </div>
-                                                </div>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                <i class="fa fa-ellipsis-h"></i>
+                                                            </button>
+                                                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
+                                                                <a class="dropdown-item edit" href="/request/editOff/<?php echo $value['id'] ?>">Edit</a>
+                                                                <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="off">Delete</a>
+                                                            </div>
+                                                        </div>
+                                                            <?php
+                                                    }
+                                                ?>
                                             </div>
                                         </div>
                                     </div>
@@ -216,6 +209,9 @@
                                         <a class="card-link" href="#">
                                             <h5 class="card-title"><?php echo 'Asking for ' . $status . ' ' . $time; ?></h5>
                                         </a>
+                                        <p class="card-text" style="margin-bottom: 10px;">
+                                            <?php echo 'Type: ' . $value['type']; ?>
+                                        </p>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <p class="card-text">
@@ -263,30 +259,37 @@
                                                 </div>
                                             </div>
                                             <div>
-                                                <div class="dropdown">
-                                                    <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        <i class="fa fa-ellipsis-h"></i>
-                                                    </button>
-                                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                                        <?php
-                                                          if(isset($user_data['role']) && $user_data['role'] == 1){
-                                                                if($value['status'] == 'WAITING'){
-                                                                ?>
-                                                                    <a class="dropdown-item accept" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Accept</a>
-                                                                    <a class="dropdown-item denny" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Denny</a>
-                                                                            <?php
-                                                                 }
-                                                                 ?>
-                                                                            <?php
-                                                             }else{
-                                                             ?>
-                                                                            <a class="dropdown-item edit" href="#">Edit</a>
-                                                                            <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="leave">Delete</a>
-                                                             <?php
-                                                            }
+                                                <?php
+                                                   if(isset($user_data['role']) && $user_data['role'] == 1){
+                                                        if($value['status'] == 'WAITING'){
                                                         ?>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fa fa-ellipsis-h"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
+                                                            <a class="dropdown-item accept" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Accept</a>
+                                                            <a class="dropdown-item denny" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Denny</a>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                    <?php
+                                                             }
+                                                             ?>
+                                                    <?php
+                                                         }else{
+                                                            ?>
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fa fa-ellipsis-h"></i>
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
+                                                            <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
+                                                            <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="leave">Delete</a>
+                                                        </div>
+                                                    </div>
+                                                <?php
+                                                    }
+                                                ?>
                                             </div>
                                         </div>
                                     </div>

@@ -159,7 +159,8 @@ body {
     bottom: 0
 }
 .member img {
-    width: 100%;
+    width: 45px;
+    height: 45px;
     transition: 0.5s ease all;
 }
 .member:hover img {
