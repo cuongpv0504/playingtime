@@ -37,36 +37,36 @@
                             </div>
                         </div>
                         <div>
-                            <div class="dropdown">
-                                <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa fa-ellipsis-h"></i>
-                                </button>
-                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                    <?php
-                                       if(isset($user_data['role']) && $user_data['role'] == 1){
-                                            if($value['status'] == 'WAITING'){
-                                            ?>
+                            <?php
+                                if(isset($user_data['role']) && $user_data['role'] == 1){
+                                   if($value['status'] == 'WAITING'){
+                                   ?>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-ellipsis-h"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
                                             <a class="dropdown-item accept" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Accept</a>
                                             <a class="dropdown-item denny" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Denny</a>
-                                            <?php
-                                             }
-                                             ?>
-                                        <?php
-                                         }else{
-                                            if($value['info'] == "off"){
-                                            ?>
-                                                <a class="dropdown-item edit" href="/request/editOff/<?php echo $value['id'] ?>">Edit</a>
-                                                <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
-                                            <?php
-                                            }elseif($value['info'] == 'leave'){
-                                         ?>
-                                                <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
-                                                <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
-                                        <?php
-                                        }}
+                                        </div>
+                                    </div>
+                                    <?php
+                                    }
                                     ?>
-                                </div>
-                            </div>
+                                    <?php
+                                }else{
+                                        if($value['info'] == "off"){
+                                        ?>
+                                            <a class="dropdown-item edit" href="/request/editOff/<?php echo $value['id'] ?>">Edit</a>
+                                            <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
+                                            <?php
+                                        }elseif($value['info'] == 'leave'){
+                                        ?>
+                                            <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
+                                            <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
+                                <?php
+                                    }}
+                                ?>
                         </div>
                     </div>
                 </div>
@@ -75,6 +75,13 @@
                     <a class="card-link" href="#">
                         <h5 class="card-title"><?php echo 'Asking for ' . $status . ' ' . $time; ?></h5>
                     </a>
+                    <?php
+                        if($value['info'] == 'off'):
+                    ?>
+                        <p class="card-text" style="margin-bottom: 10px;">
+                            <?php echo 'Type: ' . $value['type']; ?>
+                        </p>
+                    <?php endif; ?>
                     <div class="row">
                         <div class="col-md-6">
                             <p class="card-text">
