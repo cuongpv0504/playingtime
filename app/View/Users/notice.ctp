@@ -1,5 +1,6 @@
 <?php
     $this->assign('title','Yasumi Network');
+    echo $this->Html->script('accept');
     echo $this->element('nav');
 ?>
 <div class="container-fluid gedf-wrapper">
@@ -108,47 +109,47 @@
     </div>
 </div>
 
-<script type="text/javascript">
-    $(document).ready(function(){
-        // $(".card").click(function(){
-        //   window.location.replace("http://192.168.0.22/chatwork");
-        // });
-        $('.status').each(function(){
-            if ($(this).attr("data") == 'WAITING') {
-                // $(this).css("background-color","#fcf8e3");
-                $(this).find(".colorStatus").addClass("text-warning");
-            }
-            if ($(this).attr("data") == 'APPROVED') {
-                $(this).css("background-color","#dff0d8");
-                $(this).find(".colorStatus").addClass("text-success");
-            }
-            if ($(this).attr("data") == 'DENY') {
-                $(this).css("background-color","#f2dede");
-                $(this).find(".colorStatus").addClass("text-danger");
-            }
-        });
-        $('.delete').click(function(){
-            var idPost = $(this).attr("data");
-            console.log(idPost);
-            var infoPost = $(this).attr("data-info");
-            console.log(infoPost);
-            $.ajax({
-                type:"POST",
-                url: "/request/delete",
-                data : {
-                    "idPost" : idPost,
-                    "infoPost" : infoPost
-                },
-                success: function (data_success) {
-                    console.log(data_success);
-                    alert("You successfully deleted");
-                    location.reload();
-                },
-                error: function(data){
-                    alert(data['responseText']);
-                }
-            });
-        });
-    });
-</script>
+<!--<script type="text/javascript">-->
+    <!--$(document).ready(function(){-->
+        <!--// $(".card").click(function(){-->
+        <!--//   window.location.replace("http://192.168.0.22/chatwork");-->
+        <!--// });-->
+        <!--$('.status').each(function(){-->
+            <!--if ($(this).attr("data") == 'WAITING') {-->
+                <!--// $(this).css("background-color","#fcf8e3");-->
+                <!--$(this).find(".colorStatus").addClass("text-warning");-->
+            <!--}-->
+            <!--if ($(this).attr("data") == 'APPROVED') {-->
+                <!--$(this).css("background-color","#dff0d8");-->
+                <!--$(this).find(".colorStatus").addClass("text-success");-->
+            <!--}-->
+            <!--if ($(this).attr("data") == 'DENY') {-->
+                <!--$(this).css("background-color","#f2dede");-->
+                <!--$(this).find(".colorStatus").addClass("text-danger");-->
+            <!--}-->
+        <!--});-->
+        <!--$('.delete').click(function(){-->
+            <!--var idPost = $(this).attr("data");-->
+            <!--console.log(idPost);-->
+            <!--var infoPost = $(this).attr("data-info");-->
+            <!--console.log(infoPost);-->
+            <!--$.ajax({-->
+                <!--type:"POST",-->
+                <!--url: "/request/delete",-->
+                <!--data : {-->
+                    <!--"idPost" : idPost,-->
+                    <!--"infoPost" : infoPost-->
+                <!--},-->
+                <!--success: function (data_success) {-->
+                    <!--console.log(data_success);-->
+                    <!--alert("You successfully deleted");-->
+                    <!--location.reload();-->
+                <!--},-->
+                <!--error: function(data){-->
+                    <!--alert(data['responseText']);-->
+                <!--}-->
+            <!--});-->
+        <!--});-->
+    <!--});-->
+<!--</script>-->
 

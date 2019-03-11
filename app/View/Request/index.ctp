@@ -163,6 +163,3 @@
         display: none;
     }
 </style>
-<script>
-
-</script>
