@@ -315,6 +315,7 @@
                     ?>
                 </div>
                 <div id="Statistic" class="tab-pane fade">
+                    <?php echo $this->Html->link('Download', '/word/downloadDocument/'.$userData['User']['id'], array('class' => 'btn btn-primary')); ?>
                     <div class="container" style="margin-bottom: 10px; margin-top: 10px">
                         <div class="row">
                             <div class="col-md-4">
@@ -474,11 +475,15 @@
                                 }
                             ?>
                         </table>
+
+
                 </div>
             </div>
         </div>
         <div class="col-md-1"></div>
     </div>
+
+
 </div>
 </div>
 <script>

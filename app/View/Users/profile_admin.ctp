@@ -131,7 +131,7 @@ echo $this->element('nav');
 
                     <div class="col-2">
                         <div class="btn-group">
-                            <a class="btn btn-info" href="/users/profile/<?php echo $value['User']['id'] ?>">
+                            <a class="btn btn-info" href="/chatwork/users/profile/<?php echo $value['User']['id'] ?>">
                                 Detail
                             </a>
                         </div>

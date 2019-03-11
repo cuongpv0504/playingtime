@@ -91,7 +91,7 @@
                         </div>
                         <a class="text-info more">one more day</a>
                         <div class="form-group row">
-                            <a class="col-md-1 offset-4 btn btn-danger" href="/users/home">Cancel</a>
+                            <a class="col-md-1 offset-4 btn btn-danger" href="/chatwork/users/home">Cancel</a>
                             <button type="submit" class="col-md-1 offset-2 btn btn-primary">Send</button>
                         </div>
                     </form>
@@ -143,7 +143,7 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <a class="col-md-1 offset-4 btn btn-danger" href="/users/home">Cancel</a>
+                            <a class="col-md-1 offset-4 btn btn-danger" href="/chatwork/users/home">Cancel</a>
                             <button type="submit" class="col-md-1 offset-2 btn btn-primary">Send</button>
                         </div>
                     </form>

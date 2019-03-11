@@ -7,14 +7,14 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item active">
-                <a class="nav-link" href="/users/home">
+                <a class="nav-link" href="/chatwork/users/home">
                     <i class="fa fa-home"></i>
                     Home
                     <span class="sr-only">(current)</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/request">
+                <a class="nav-link" href="/chatwork/request">
                     <i class="fa fa-envelope-o">
                     </i>
                     Add Request
@@ -42,7 +42,7 @@
 
         <ul class="navbar-nav ">
             <li class="nav-item">
-                <a class="nav-link" href="/users/notice">
+                <a class="nav-link" href="/chatwork/users/notice">
                     <i class="fa fa-bell">
                         <span class="badge badge-info"><?php if (isset($notice)) {
                             echo $notice;
