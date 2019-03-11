@@ -318,7 +318,7 @@
                     ?>
                 </div>
                 <div id="Statistic" class="tab-pane fade">
-                    <?php echo $this->Html->link('Download', '/word/downloadDocument/'.$userData['User']['id'], array('class' => 'btn btn-primary')); ?>
+                    <?php echo $this->Html->link('Download', '/word/downloadDocument/'.$userData['User']['id'], array('class' => 'btn btn-primary download')); ?>
                     <div class="container" style="margin-bottom: 10px; margin-top: 10px">
                         <div class="row">
                             <div class="col-md-4">
@@ -576,6 +576,9 @@
     });
 </script>
 <style>
+    .download {
+        float: right;
+    }
     .table-bordered {
         background-clip: border-box;
         border: 1px solid rgba(0,0,0,.125);
