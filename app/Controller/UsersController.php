@@ -104,7 +104,7 @@ class UsersController extends AppController
 //		]);
 //
 //		$this->set('login_url',$url);
-         $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
+         $_SESSION['email'] = "cuongpv@tmh-techlab.vn";
 	}
 
 	public function logout()
@@ -267,7 +267,8 @@ class UsersController extends AppController
 				'author' => array(
 					'name' =>  $value['User']['name'],
 					'avatar' => $value['User']['avatar'],
-                    'email' => $value['User']['email']
+                    'email' => $value['User']['email'],
+                    'role' => $value['User']['role']
 				)
 			);
 		}
@@ -319,7 +320,8 @@ class UsersController extends AppController
 				'author' => array(
 					'name' =>  $value['User']['name'],
 					'avatar' => $value['User']['avatar'],
-                    'email' => $value['User']['email']
+                    'email' => $value['User']['email'],
+                    'role' => $value['User']['role']
 				)
 			);
 		}
