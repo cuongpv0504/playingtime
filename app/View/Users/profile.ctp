@@ -194,7 +194,7 @@
                                                                 <i class="fa fa-ellipsis-h"></i>
                                                             </button>
                                                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                                                <a class="dropdown-item edit" href="/request/editOff/<?php echo $value['id'] ?>">Edit</a>
+                                                                <a class="dropdown-item edit" href="/chatwork/request/editOff/<?php echo $value['id'] ?>">Edit</a>
                                                                 <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="off">Delete</a>
                                                             </div>
                                                         </div>
@@ -283,7 +283,7 @@
                                                             <i class="fa fa-ellipsis-h"></i>
                                                         </button>
                                                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                                            <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
+                                                            <a class="dropdown-item edit" href="/chatwork/request/editLeave/<?php echo $value['id']?>">Edit</a>
                                                             <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="leave">Delete</a>
                                                         </div>
                                                     </div>
@@ -519,7 +519,7 @@
             var infoPost = $(this).attr("data-info");
             $.ajax({
                 type:"POST",
-                url: "/request/delete",
+                url: "/chatwork/request/delete",
                 data : {
                     "idPost" : idPost,
                     "infoPost" : infoPost
@@ -538,7 +538,7 @@
             var infoPost = $(this).attr("data-info");
             $.ajax({
                 type:"POST",
-                url: "/request/accept",
+                url: "/chatwork/request/accept",
                 data : {
                     "id" : idPost,
                     "info" : infoPost,
@@ -558,7 +558,7 @@
             var infoPost = $(this).attr("data-info");
             $.ajax({
                 type: "POST",
-                url: "/request/accept",
+                url: "/chatwork/request/accept",
                 data: {
                     "id": idPost,
                     "info": infoPost,

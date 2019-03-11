@@ -74,7 +74,7 @@
                                     <i class="fa fa-ellipsis-h"></i>
                                 </button>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                    <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
+                                    <a class="dropdown-item edit" href="/chatwork/request/editLeave/<?php echo $value['id']?>">Edit</a>
                                     <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
                                 </div>
                             </div>
@@ -159,7 +159,7 @@
             var infoPost = $(this).attr("data-info");
             $.ajax({
                 type:"POST",
-                url: "/request/accept",
+                url: "/chatwork/request/accept",
                 data : {
                     "id" : idPost,
                     "info" : infoPost,
@@ -179,7 +179,7 @@
             var infoPost = $(this).attr("data-info");
             $.ajax({
                 type:"POST",
-                url: "/request/accept",
+                url: "/chatwork/request/accept",
                 data : {
                     "id" : idPost,
                     "info" : infoPost,

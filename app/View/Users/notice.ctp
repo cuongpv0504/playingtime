@@ -61,7 +61,7 @@
                                             <i class="fa fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                            <a class="dropdown-item edit" href="/request/editOff/<?php echo $value['id'] ?>">Edit</a>
+                                            <a class="dropdown-item edit" href="/chatwork/request/editOff/<?php echo $value['id'] ?>">Edit</a>
                                             <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
                                         </div>
                                     </div>
@@ -73,7 +73,7 @@
                                             <i class="fa fa-ellipsis-h"></i>
                                         </button>
                                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="gedf-drop1">
-                                            <a class="dropdown-item edit" href="/request/editLeave/<?php echo $value['id']?>">Edit</a>
+                                            <a class="dropdown-item edit" href="/chatwork/request/editLeave/<?php echo $value['id']?>">Edit</a>
                                             <a class="dropdown-item delete" data="<?php echo $value['id']?>" data-info="<?php echo $value['info']?>">Delete</a>
                                         </div>
                                     </div>
@@ -134,7 +134,7 @@
             console.log(infoPost);
             $.ajax({
                 type:"POST",
-                url: "/request/delete",
+                url: "/chatwork/request/delete",
                 data : {
                     "idPost" : idPost,
                     "infoPost" : infoPost
