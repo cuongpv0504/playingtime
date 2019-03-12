@@ -188,6 +188,11 @@ class RequestController extends AppController
                 'chatwork_name' => USUI_NAME
             );
 
+            $data['users'][] = array(
+                'chatwork_id' => PHUONG_ID,
+                'chatwork_name' => PHUONG_NAME
+            );
+
             $res = $this->sendChatWork($data);
 
             if (isset($res->errors)) {
@@ -239,16 +244,16 @@ class RequestController extends AppController
             );
 
             $data['content'] = 'Because ' . $reason . ', I want to leave the office from ' . date("H:i", strtotime($start))
-                . ' to ' . date("H:i", strtotime($end)) . '. I hope you aprrove. (bow)';
+                . ' to ' . date("H:i", strtotime($end)) . ' on ' . date("Y-m-d", strtotime($date)) . '. I hope you aprrove. (bow)';
 
             if (strtotime($end) == strtotime('17:30:00')) {
-                $data['content'] = 'Because ' . $reason . ', I want to leaving soon from ' . date("H:i", strtotime($start))
+                $data['content'] = 'Because ' . $reason . ' on ' . date("Y-m-d", strtotime($date)) . ', I want to leaving soon from ' . date("H:i", strtotime($start))
                     . '. I hope you aprrove. (bow)';
             }
 
             if (strtotime($start) == strtotime('08:30:00')) {
                 $data['content'] = 'Because ' . $reason . ', I want to coming late at ' . date("H:i", strtotime($end))
-                    . '. I hope you aprrove. (bow)';
+                    . ' on ' . date("Y-m-d", strtotime($date)) . '. I hope you aprrove. (bow)';
             }
 
             $data['users'][] = array(
@@ -259,6 +264,11 @@ class RequestController extends AppController
             $data['users'][] = array(
                 'chatwork_id' => USUI_ID,
                 'chatwork_name' => USUI_NAME
+            );
+
+            $data['users'][] = array(
+                'chatwork_id' => PHUONG_ID,
+                'chatwork_name' => PHUONG_NAME
             );
 
             $res = $this->sendChatWork($data);
@@ -280,7 +290,7 @@ class RequestController extends AppController
         $info = $_POST['infoPost'];
         $id = $_POST['idPost'];
         $email = $_SESSION['email'];
-//        $email = "thaovtp@tmh-techlab.vn";
+        // $email = "thaovtp@tmh-techlab.vn";
 
         //get user_data
         $data = $this->User->find(
@@ -345,6 +355,11 @@ class RequestController extends AppController
             $chatwork_data['users'][] = array(
                 'chatwork_id' => USUI_ID,
                 'chatwork_name' => USUI_NAME
+            );
+
+            $data['users'][] = array(
+                'chatwork_id' => PHUONG_ID,
+                'chatwork_name' => PHUONG_NAME
             );
 
             $res = $this->sendChatWork($chatwork_data);
@@ -522,7 +537,7 @@ class RequestController extends AppController
             }
         } elseif ($status == self::DENY) {
             $data = array(
-                'access_token' => $user_data['User']['access_token'],
+                'access_token' => $admin['User']['access_token'],
                 'content' => '(shake)',
                 'method' => '3'
             );
@@ -736,6 +751,11 @@ class RequestController extends AppController
                     'chatwork_name' => USUI_NAME
                 );
 
+                $data['users'][] = array(
+                    'chatwork_id' => PHUONG_ID,
+                    'chatwork_name' => PHUONG_NAME
+                );
+
                 $res = $this->sendChatWork($data);
 
                 if (isset($res->errors)) {
@@ -753,7 +773,7 @@ class RequestController extends AppController
     public function editLeave($id = null){
         $email = $_SESSION['email'];
 
-        $data = $this->User->find(
+        $user_data = $this->User->find(
             'first',
             array(
                 'conditions' => array(
@@ -761,7 +781,7 @@ class RequestController extends AppController
                 )
             ));
 
-        $user_id = $data['User']['id'];
+        $user_id = $user_data['User']['id'];
         if(isset($id)){
             if(isset($id)){
                 $check = $this->Leave->find('first',array(
@@ -791,17 +811,22 @@ class RequestController extends AppController
                 'status' => self::WAITING
             );
 
+
             if (isset($_POST['start'])) {
                 $save['start'] = $_POST['start'];
+                $start = $_POST['start'];
             }
             if (isset($_POST['end'])) {
                 $save['end'] = $_POST['end'];
+                $end = $_POST['end'];
             }
             if (isset($_POST['date'])) {
                 $save['date'] = $_POST['date'];
+                $date = $_POST['date'];
             }
             if (isset($_POST['reason'])) {
                 $save['reason'] = $_POST['reason'];
+                $reason = $_POST['reason'];
             }
             if (isset($_POST['emotion'])) {
                 $save['emotion'] = $_POST['emotion'];
@@ -809,7 +834,50 @@ class RequestController extends AppController
 
             $this->Leave->id = $id;
             if ($this->Leave->save($save)) {
-                $this->response->header('Location',"/users/home");
+
+                //send chatwork
+                $data = array(
+                    'access_token' => $user_data['User']['access_token'],
+                    'method' => '2'
+                );
+
+                $data['content'] = 'Because ' . $reason . ', I want to leave the office from ' . date("H:i", strtotime($start))
+                    . ' to ' . date("H:i", strtotime($end)) . ' on ' . date("Y-m-d", strtotime($date)) . '. I hope you aprrove. (bow)';
+
+                if (strtotime($end) == strtotime('17:30:00')) {
+                    $data['content'] = 'Because ' . $reason . ', I want to leaving soon from ' . date("H:i", strtotime($start))
+                        . ' on ' . date("Y-m-d", strtotime($date)) . '. I hope you aprrove. (bow)';
+                }
+
+                if (strtotime($start) == strtotime('08:30:00')) {
+                    $data['content'] = 'Because ' . $reason . ', I want to coming late at ' . date("H:i", strtotime($end))
+                        . ' on ' . date("Y-m-d", strtotime($date)) . '. I hope you aprrove. (bow)';
+                }
+
+                $data['users'][] = array(
+                    'chatwork_id' => JO_ID,
+                    'chatwork_name' => JO_NAME
+                );
+
+                $data['users'][] = array(
+                    'chatwork_id' => USUI_ID,
+                    'chatwork_name' => USUI_NAME
+                );
+
+                $data['users'][] = array(
+                    'chatwork_id' => PHUONG_ID,
+                    'chatwork_name' => PHUONG_NAME
+                );
+
+                $res = $this->sendChatWork($data);
+
+                if (isset($res->errors)) {
+                    $access_token = $this->getAccessToken($user_data['User']['refresh_token']);
+                    $data['access_token'] = $access_token;
+                    $res = $this->sendChatWork($data);
+                }
+
+                $this->response->header('Location',"/chatwork/users/home");
             }
         }
 

@@ -1,5 +1,6 @@
 <?php  
     $this->assign('title','Yasumi Network');
+    echo $this->Html->script('accept');
     echo $this->element('nav');
 ?>
 
@@ -55,7 +56,7 @@
                                              ?>
                             <?php
                                          }else{
-                                            if($value['info'] == "off"){
+                                            if($value['info'] == "off" && $user_data['id'] == $value['user_id']){
                                             ?>
                             <div class="dropdown">
                                 <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -67,7 +68,7 @@
                                 </div>
                             </div>
                             <?php
-                                            }elseif($value['info'] == 'leave'){
+                                            }elseif($value['info'] == 'leave' && $user_data['id'] == $value['user_id']){
                                          ?>
                             <div class="dropdown">
                                 <button class="btn btn-link dropdown-toggle" type="button" id="gedf-drop1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -116,85 +117,4 @@
     </div>
 </div>
 
-<script type="text/javascript">
-    $(document).ready(function(){
-        $('.status').each(function(){
-            if ($(this).attr("data") == 'WAITING') {
-                // $(this).css("background-color","#fcf8e3");
-                $(this).find(".colorStatus").addClass("text-warning");
-            }
-            if ($(this).attr("data") == 'APPROVED') {
-                $(this).css("background-color","#dff0d8");
-                $(this).find(".colorStatus").addClass("text-success");
-            }
-            if ($(this).attr("data") == 'DENY') {
-                $(this).css("background-color","#f2dede");
-                $(this).find(".colorStatus").addClass("text-danger");
-            }
-        });
-        $('.delete').click(function(){
-            var idPost = $(this).attr("data");
-            console.log(idPost);
-            var infoPost = $(this).attr("data-info");
-            console.log(infoPost);
-            $.ajax({
-                type:"POST",
-                url: "/chatwork/request/delete",
-                data : {
-                    "idPost" : idPost,
-                    "infoPost" : infoPost
-                },
-                success: function (data_success) {
-                    console.log(data_success);
-                    alert("You successfully deleted");
-                    location.reload();
-                },
-                error: function(data){
-                    alert(data['responseText']);
-                }
-            });
-        });
-        $('.accept').click(function(){
-            var idPost = $(this).attr("data");
-            var infoPost = $(this).attr("data-info");
-            $.ajax({
-                type:"POST",
-                url: "/chatwork/request/accept",
-                data : {
-                    "id" : idPost,
-                    "info" : infoPost,
-                    "status" : 1
-                },
-                success: function (data_success) {
-                    alert("success");
-                    location.reload();
-                },
-                error: function(data){
-                    alert(data['responseText']);
-                }
-            });
-        });
-        $('.denny').click(function(){
-            var idPost = $(this).attr("data");
-            var infoPost = $(this).attr("data-info");
-            $.ajax({
-                type:"POST",
-                url: "/chatwork/request/accept",
-                data : {
-                    "id" : idPost,
-                    "info" : infoPost,
-                    "status" : 3
-                },
-                success: function (data_success) {
-                    alert("success");
-                    location.reload();
-                },
-                error: function(data){
-                    alert(data['responseText']);
-                }
-            });
-        });
-    });
-
-</script>
 

@@ -778,7 +778,7 @@ class ApiController extends AppController
 			}
 		} elseif ($status == self::DENY) {
 			$data = array(
-				'access_token' => $user_data['User']['access_token'],
+				'access_token' => $admin['User']['access_token'],
 				'content' => '(shake)',
 				'method' => '3'
 			);
@@ -1091,6 +1091,11 @@ class ApiController extends AppController
 				'chatwork_id' => USUI_ID,
 				'chatwork_name' => USUI_NAME
 			);
+
+			$data['users'][] = array(
+				'chatwork_id' => PHUONG_ID,
+				'chatwork_name' => PHUONG_NAME
+			);
 			
 			$res = $this->sendChatWork($data);
 
@@ -1183,6 +1188,11 @@ class ApiController extends AppController
 			$data['users'][] = array(
 				'chatwork_id' => USUI_ID,
 				'chatwork_name' => USUI_NAME
+			);
+
+			$data['users'][] = array(
+				'chatwork_id' => PHUONG_ID,
+				'chatwork_name' => PHUONG_NAME
 			);
 
 			$res = $this->sendChatWork($data);
@@ -1278,6 +1288,11 @@ class ApiController extends AppController
 			$chatwork_data['users'][] = array(
 				'chatwork_id' => USUI_ID,
 				'chatwork_name' => USUI_NAME
+			);
+
+			$data['users'][] = array(
+				'chatwork_id' => PHUONG_ID,
+				'chatwork_name' => PHUONG_NAME
 			);
 
 			$res = $this->sendChatWork($chatwork_data);

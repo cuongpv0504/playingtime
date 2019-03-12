@@ -1,5 +1,6 @@
 <?php
      $this->assign('title','Add Request');
+echo $this->Html->script('request');
 echo $this->element('nav');
 ?>
 
@@ -48,7 +49,7 @@ echo $this->element('nav');
                     ?>
                     <div class="form-group row">
                         <label class="col-2 col-form-label">Date</label>
-                        <div class="col-7">
+                        <div class="col-6">
                             <input class="form-control" name="date[<?php echo $key; ?>]" type="date" value="<?php echo date('Y-m-d',strtotime($date['0'])); ?>">
                         </div>
                         <label class="col-1 col-form-label">In</label>
@@ -74,9 +75,10 @@ echo $this->element('nav');
 
                             </select>
                         </div>
+                        <div class="col-1"><a class="remove"><span class="fa fa-remove" style="font-size:24px;color:red"></span></a></div>
                     </div>
                     <?php endforeach; ?>
-                    <div class="form-group row" id="insertDate">
+                    <div id="insertDate">
 
                     </div>
                     <a class="text-info more">one more day</a>
@@ -98,50 +100,3 @@ echo $this->element('nav');
         display: none;
     }
 </style>
-<script>
-    function reasonOff(obj)
-    {
-        var reason = obj.value;
-        if(reason == 'Other'){
-            document.getElementById('otherOff').style.display = "block";
-        }else{
-            document.getElementById('otherOff').style.display = "none";
-        }
-    }
-    function reasonLeave(obj)
-    {
-        var reason = obj.value;
-        if(reason == 'Other'){
-            document.getElementById('otherLeave').style.display = "block";
-        }else{
-            document.getElementById('otherLeave').style.display = "none";
-        }
-    }
-    $(document).ready(function(){
-        //profile
-        var count = 1;
-
-        $('.reason').click(function(){
-            console.log(this);
-            $(this).val();
-        });
-        $('.more').click(function () {
-            console.log("thao");
-            count++;
-            var formDate = '<label class="col-2 col-form-label">Date</label>' +
-                '                        <div class="col-7">' +
-                '                            <input class="form-control" name="date['+ count +']" type="date">' +
-                '                        </div>' +
-                '                        <label class="col-1 col-form-label">In</label>' +
-                '                        <div class="col-2">' +
-                '                            <select class="form-control" name="in['+ count +']">' +
-                '                                <option>ALL</option>' +
-                '                                <option>AM</option>' +
-                '                                <option>PM</option>' +
-                '                            </select>\n' +
-                '                        </div><div class="container" style="margin-bottom: 15px"></div>';
-            $('#insertDate').append(formDate);
-        })
-
-    });
-</script>

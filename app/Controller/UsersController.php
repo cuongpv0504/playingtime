@@ -104,7 +104,7 @@ class UsersController extends AppController
 		]);
 
 		$this->set('login_url',$url);
-         // $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
+     // $_SESSION['email'] = "thaovtp@tmh-techlab.vn";
 	}
 
 	public function logout()
