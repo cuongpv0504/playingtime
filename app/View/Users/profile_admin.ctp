@@ -120,7 +120,7 @@ echo $this->element('nav');
                         <?php
                                 foreach($userData['listUser'] as $list){
                                 ?>
-                        <a href="/users/profile/<?php echo $list['User']['id']?>" class="member"> <img class="img<?php echo $list['User']['id']?>" src="<?php echo $list['User']['avatar']?>" alt="">
+                        <a href="/chatwork/users/profile/<?php echo $list['User']['id']?>" class="member"> <img class="img<?php echo $list['User']['id']?>" src="<?php echo $list['User']['avatar']?>" alt="">
                             <div class="memmbername"><?php echo $list['User']['name']?></div>
                         </a>
                         <?php

@@ -121,7 +121,7 @@
                             <?php
                                 foreach($userData['listUser'] as $list){
                                 ?>
-                                <a href="/users/profile/<?php echo $list['User']['id']?>" class="member"> <img class="img<?php echo $list['User']['id']?>" src="<?php echo $list['User']['avatar']?>" alt="">
+                                <a href="/chatwork/users/profile/<?php echo $list['User']['id']?>" class="member"> <img class="img<?php echo $list['User']['id']?>" src="<?php echo $list['User']['avatar']?>" alt="">
                                     <div class="memmbername"><?php echo $list['User']['name']?></div>
                                 </a>
                                 <?php
@@ -207,7 +207,7 @@
                                     </div>
                                     <div class="card-body status" data="<?php echo $value['status']; ?>" style="padding-bottom: 1.25rem;padding-top: 1.25rem;padding-left: 1.25rem;padding-right: 0rem;">
                                         <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i><?php echo $value['post_at'] ?></div>
-                                        <a class="card-link" href="#">
+                                        <a class="card-link" href="/chatwork/request/<?php echo $value['info']?>Detail/<?php echo $value['id']?>">
                                             <h5 class="card-title"><?php echo 'Asking for ' . $status . ' ' . $time; ?></h5>
                                         </a>
                                         <p class="card-text" style="margin-bottom: 10px;">
@@ -296,7 +296,7 @@
                                     </div>
                                     <div class="card-body status" data="<?php echo $value['status']; ?>" style="padding-bottom: 1.25rem;padding-top: 1.25rem;padding-left: 1.25rem;padding-right: 0rem;">
                                         <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i><?php echo $value['post_at'] ?></div>
-                                        <a class="card-link" href="#">
+                                        <a class="card-link" href="/chatwork/request/<?php echo $value['info']?>Detail/<?php echo $value['id']?>">
                                             <h5 class="card-title"><?php echo 'Asking for ' . $status . ' ' . $time; ?></h5>
                                         </a>
                                         <div class="row">

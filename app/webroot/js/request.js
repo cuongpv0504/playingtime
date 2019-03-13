@@ -28,7 +28,7 @@ $(document).ready(function(){
         var formDate = '<div class="form-group row removeDate">' +
             '<label class="col-2 col-form-label">Date</label>' +
             '                        <div class="col-6">' +
-            '                            <input class="form-control" name="date['+ count +']" type="date">' +
+            '                            <input class="form-control" name="date['+ count +']" type="date" min="2019-03-12">' +
             '                        </div>' +
             '                        <label class="col-1 col-form-label">In</label>' +
             '                        <div class="col-2">' +

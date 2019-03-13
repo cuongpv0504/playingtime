@@ -14,7 +14,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/chatwork/request">
+                <a class="nav-link" href="<?php if($user_data['role'] == 3 || $user_data['role'] == 2){echo '/chatwork/request/';}?>">
                     <i class="fa fa-envelope-o">
                     </i>
                     Add Request

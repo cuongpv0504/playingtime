@@ -36,7 +36,7 @@ echo $this->element('nav');
                     <div class="form-group row">
                         <label class="col-2 col-form-label">Date</label>
                         <div class="col-10">
-                            <input class="form-control" name="date" type="date" value="<?php echo $leave['Leave']['date'] ?>">
+                            <input class="form-control" name="date" type="date" min="<?php echo date('Y-m-d'); ?>" value="<?php echo $leave['Leave']['date'] ?>">
                         </div>
                     </div>
                     <div class="form-group row">

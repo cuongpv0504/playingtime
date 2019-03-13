@@ -91,7 +91,7 @@ class ApiController extends AppController
 		));
 
 		if (empty($check)) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 		 	return json_encode(array(
 		 		'error' => 'You can not access Yasumi PJ'
 		 	));
@@ -224,7 +224,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -308,7 +308,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -341,7 +341,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -369,7 +369,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -420,7 +420,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -446,14 +446,14 @@ class ApiController extends AppController
 		));
 
 		if ($check['Leave']['user_id'] != $user_id) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
 		}
 
 		if (strtotime($check['Leave']['date']) <= strtotime(date('Y-m-d'))) {
-            $this->response->statusCode(406);
+            $this->response->statusCode(401);
             return json_encode(array(
                 'error' => 'Can not delete. The day has gone.'
             ));
@@ -494,7 +494,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -521,7 +521,7 @@ class ApiController extends AppController
 		));
 
 		if ($check['Off']['user_id'] != $user_id) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -538,7 +538,7 @@ class ApiController extends AppController
         }
         
         if (!$time) {
-            $this->response->statusCode(406);
+            $this->response->statusCode(401);
             return json_encode(array(
                 'error' => 'The day has gone, can not delete'
             ));
@@ -579,7 +579,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -631,7 +631,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -649,7 +649,7 @@ class ApiController extends AppController
 		//check owned, if not check role
 		if (empty($checkOwn)) {
 			if ($this->getRole() == self::USER) {
-				$this->response->statusCode(406);
+				$this->response->statusCode(401);
 				return json_encode(array(
 					'error' => 'You dont have permission'
 				));
@@ -719,14 +719,14 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() != self::ADMIN) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -869,14 +869,14 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() != self::ADMIN) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -967,14 +967,14 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() == self::USER) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -995,14 +995,14 @@ class ApiController extends AppController
 	{
 		$this->autoRender = false;
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
 		}
 
 		if ($this->getRole() == self::USER) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'You dont have permission'
 			));
@@ -1023,7 +1023,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1117,7 +1117,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1215,7 +1215,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1245,7 +1245,7 @@ class ApiController extends AppController
 			));
             //check owned
             if (empty($check)) {
-                $this->response->statusCode(406);
+                $this->response->statusCode(401);
                 return json_encode(array(
                     'error' => 'You dont have permission'
                 ));
@@ -1351,7 +1351,7 @@ class ApiController extends AppController
 			));
             //check owned
             if (empty($check)) {
-                $this->response->statusCode(406);
+                $this->response->statusCode(401);
                 return json_encode(array(
                     'error' => 'You dont have permission'
                 ));
@@ -1440,7 +1440,7 @@ class ApiController extends AppController
 			'Authorization: Bearer '.$access_token
 		);
 
-		$message = '';
+		$message = 'Demo Playingtime: '.PHP_EOL;
 
 		// 1: basic
 		// 2: to
@@ -1490,7 +1490,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1514,7 +1514,8 @@ class ApiController extends AppController
 			'user_id' => $id,
 			'comment' => $comment,
 			'off_id' => $off_id,
-			'leave_id' => $leave_id
+			'leave_id' => $leave_id,
+			'create_at' => date("Y-m-d H:i:s")
 		);
 
 		$this->Comment->create();
@@ -1530,7 +1531,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1555,7 +1556,7 @@ class ApiController extends AppController
 		));
 
 		if (empty($check)) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'You can not delete other people\'s comment'
 			));
@@ -1573,7 +1574,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));
@@ -1754,7 +1755,7 @@ class ApiController extends AppController
 		$this->autoRender = false;
 
 		if (!$this->auth()) {
-			$this->response->statusCode(406);
+			$this->response->statusCode(401);
 			return json_encode(array(
 				'error' => 'Can not authenicate'
 			));

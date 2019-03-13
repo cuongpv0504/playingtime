@@ -45,7 +45,7 @@
                         </div>
                         <div class="form-group row" id="otherOff" style="display: none">
                             <div class="col-10 offset-2" >
-                                <input class="form-control" type="text" name="reasonOther" value="Other...">
+                                <input class="form-control" type="text" name="reasonOther" placeholder="Type reason here...">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -76,7 +76,7 @@
                         <div class="form-group row removeDate">
                             <label class="col-2 col-form-label">Date</label>
                             <div class="col-6">
-                                <input class="form-control" name="date[1]" type="date" >
+                                <input class="form-control" name="date[1]" type="date" min="<?php echo date('Y-m-d'); ?>">
                             </div>
                             <label class="col-1 col-form-label">In</label>
                             <div class="col-2">
@@ -86,7 +86,6 @@
                                     <option>PM</option>
                                 </select>
                             </div>
-                            <div class="col-1"><a class="remove"><span class="fa fa-remove" style="font-size:24px;color:red"></span></a></div>
                         </div>
                         <div id="insertDate">
 
@@ -114,7 +113,7 @@
                         </div>
                         <div class="form-group row" id="otherLeave" style="display: none">
                             <div class="col-10 offset-2" >
-                                <input class="form-control" name="reasonOther" type="text" value="Other...">
+                                <input class="form-control" name="reasonOther" type="text" placeholder="Type reason here...">
                             </div>
                         </div>
                         <div class="form-group row">
@@ -131,17 +130,17 @@
                         <div class="form-group row">
                             <label class="col-2 col-form-label">Date</label>
                             <div class="col-10">
-                                <input class="form-control" name="date" type="date">
+                                <input class="form-control" name="date" type="date" min="<?php echo date('Y-m-d'); ?>">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label class="col-2 col-form-label">From</label>
                             <div class="col-4">
-                                <input class="form-control" name="start" type="time" value="13:45:00">
+                                <input class="form-control" name="start" type="time" value="08:30" min="08:30" max="17:30">
                             </div>
                             <label class="col-1 offset-1 col-form-label">To</label>
                             <div class="col-4">
-                                <input class="form-control" name="end" type="time" value="13:45:00">
+                                <input class="form-control" name="end" type="time" value="17:30" min="08:30" max="17:30">
                             </div>
                         </div>
                         <div class="form-group row">

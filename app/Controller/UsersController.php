@@ -718,7 +718,6 @@ class UsersController extends AppController
     }
 
     public function search(){
-        $this->log("thao");
         if(isset($_POST)){
             $query = $_POST['search'];
 

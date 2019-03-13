@@ -50,7 +50,7 @@ echo $this->element('nav');
                     <div class="form-group row">
                         <label class="col-2 col-form-label">Date</label>
                         <div class="col-6">
-                            <input class="form-control" name="date[<?php echo $key; ?>]" type="date" value="<?php echo date('Y-m-d',strtotime($date['0'])); ?>">
+                            <input class="form-control" name="date[<?php echo $key; ?>]" type="date" min="<?php echo date('Y-m-d'); ?>" value="<?php echo date('Y-m-d',strtotime($date['0'])); ?>">
                         </div>
                         <label class="col-1 col-form-label">In</label>
                         <div class="col-2">

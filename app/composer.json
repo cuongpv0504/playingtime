@@ -20,7 +20,9 @@
 	"require": {
 		"wataridori/chatwork-sdk": "^0.3.0",
 		"chatwork/oauth2-chatwork": "^0.1.1",
-		"phpoffice/phpword": "^0.16.0"
+		"phpoffice/phpword": "^0.16.0",
+		"phpoffice/phpspreadsheet": "^1.6",
+		"phpoffice/phppresentation": "^0.9.0"
 	},
 	"require-dev": {
 	},
